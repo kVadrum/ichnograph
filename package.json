@@ -1,0 +1,36 @@
+{
+  "name": "glance",
+  "version": "0.1.0",
+  "description": "One-screen orientation for any codebase.",
+  "type": "module",
+  "bin": {
+    "glance": "./dist/cli.js"
+  },
+  "files": [
+    "dist",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsx src/cli.ts",
+    "start": "node dist/cli.js",
+    "prepublishOnly": "npm run build"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "keywords": [
+    "cli",
+    "codebase",
+    "orientation",
+    "overview"
+  ],
+  "license": "MIT",
+  "author": "kVadrum",
+  "devDependencies": {
+    "@types/node": "^20.14.0",
+    "tsx": "^4.19.0",
+    "typescript": "^5.6.0"
+  }
+}
