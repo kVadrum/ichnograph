@@ -1,6 +1,6 @@
 {
   "name": "glance",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "One-screen orientation for any codebase.",
   "type": "module",
   "bin": {

@@ -1,3 +1,5 @@
+import { symlinkSync } from 'node:fs';
+import { join } from 'node:path';
 import { afterEach, beforeEach, describe, expect, it } from 'vitest';
 import { buildTree } from '../src/detect/tree.js';
 import { makeFixture, type Fixture } from './helpers.js';
@@ -54,6 +56,18 @@ describe('buildTree', () => {
 
     const deep = buildTree(fx.path, { depth: 3 });
     expect(deep.lines.join('\n')).toContain('deep.txt');
+  });
+
+  it('skips symlinks so circular links do not infinite-loop', () => {
+    fx.write('real.txt', '');
+    symlinkSync(fx.path, join(fx.path, 'loop'));
+    symlinkSync('/etc/passwd', join(fx.path, 'escape'));
+
+    const tree = buildTree(fx.path, { depth: 5 });
+    const joined = tree.lines.join('\n');
+    expect(joined).toContain('real.txt');
+    expect(joined).not.toContain('loop');
+    expect(joined).not.toContain('escape');
   });
 
   it('marks truncation when a directory exceeds maxEntriesPerDir', () => {

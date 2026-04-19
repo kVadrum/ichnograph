@@ -1,4 +1,4 @@
-import { readdirSync, statSync } from 'node:fs';
+import { lstatSync, readdirSync } from 'node:fs';
 import { basename, join } from 'node:path';
 import type { TreeSection } from '../types.js';
 
@@ -43,7 +43,8 @@ function listDir(dir: string, ignore: Set<string>): Entry[] {
   for (const name of names) {
     if (ignore.has(name)) continue;
     try {
-      const st = statSync(join(dir, name));
+      const st = lstatSync(join(dir, name));
+      if (st.isSymbolicLink()) continue;
       entries.push({ name, isDir: st.isDirectory() });
     } catch {
       // unreadable entry — skip
