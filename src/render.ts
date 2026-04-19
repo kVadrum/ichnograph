@@ -53,6 +53,14 @@ export function renderText(report: Report): string {
     out.push(...section('stack', body));
   }
 
+  if (report.notes.length > 0) {
+    const width = Math.max(...report.notes.map((n) => n.name.length));
+    const body = report.notes.map((n) =>
+      n.summary ? `${n.name.padEnd(width)}  ${n.summary}` : n.name,
+    );
+    out.push(...section('notes', body));
+  }
+
   if (report.git) {
     const body: string[] = [];
     if (report.git.branch) body.push(`branch: ${report.git.branch}`);
