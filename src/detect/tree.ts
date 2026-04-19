@@ -1,5 +1,5 @@
 import { lstatSync, readdirSync } from 'node:fs';
-import { basename, join } from 'node:path';
+import { join } from 'node:path';
 import type { TreeSection } from '../types.js';
 
 const DEFAULT_IGNORES = new Set([
@@ -88,5 +88,5 @@ export function buildTree(root: string, opts: TreeOptions = {}): TreeSection {
   };
 
   walk(root, '', depth);
-  return { root: basename(root) || root, lines, truncated };
+  return { lines, truncated };
 }

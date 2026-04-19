@@ -44,6 +44,14 @@ describe('detectStack', () => {
     fx.write('package.json', JSON.stringify({ name: 'plainjs' }));
     const stacks = detectStack(fx.path);
     expect(stacks[0]?.language).toBe('JavaScript');
+    expect(stacks[0]?.version).toBeNull();
+  });
+
+  it('uses explicit nulls when name or version absent', () => {
+    fx.write('package.json', JSON.stringify({}));
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBeNull();
+    expect(stacks[0]?.version).toBeNull();
   });
 
   it('parses pyproject.toml project name and frameworks', () => {

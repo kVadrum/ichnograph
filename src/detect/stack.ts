@@ -4,8 +4,8 @@ import { join } from 'node:path';
 export type StackHit = {
   language: string;
   manifest: string;
-  name?: string;
-  version?: string;
+  name: string | null;
+  version: string | null;
   frameworks: string[];
 };
 
@@ -80,13 +80,17 @@ function detectPyFrameworks(text: string): string[] {
   return hits;
 }
 
-function extractTomlField(text: string, section: string, field: string): string | undefined {
+function extractTomlField(text: string, section: string, field: string): string | null {
   const sectionRe = new RegExp(`\\[${section.replace('.', '\\.')}\\]([\\s\\S]*?)(\\n\\[|$)`, 'i');
   const match = text.match(sectionRe);
-  if (!match || match[1] === undefined) return undefined;
+  if (!match || match[1] === undefined) return null;
   const fieldRe = new RegExp(`^\\s*${field}\\s*=\\s*["']([^"']+)["']`, 'm');
   const f = match[1].match(fieldRe);
-  return f?.[1];
+  return f?.[1] ?? null;
+}
+
+function stringOrNull(value: unknown): string | null {
+  return typeof value === 'string' ? value : null;
 }
 
 export function detectStack(root: string): StackHit[] {
@@ -100,8 +104,8 @@ export function detectStack(root: string): StackHit[] {
       hits.push({
         language: hasTs ? 'TypeScript' : 'JavaScript',
         manifest: 'package.json',
-        name: typeof pkg.name === 'string' ? pkg.name : undefined,
-        version: typeof pkg.version === 'string' ? pkg.version : undefined,
+        name: stringOrNull(pkg.name),
+        version: stringOrNull(pkg.version),
         frameworks: detectJsFrameworks(pkg),
       });
     }
@@ -110,17 +114,15 @@ export function detectStack(root: string): StackHit[] {
   const pyprojectPath = join(root, 'pyproject.toml');
   if (existsSync(pyprojectPath)) {
     const text = readTextSafe(pyprojectPath) ?? '';
-    const name =
-      extractTomlField(text, 'project', 'name') ??
-      extractTomlField(text, 'tool.poetry', 'name');
-    const version =
-      extractTomlField(text, 'project', 'version') ??
-      extractTomlField(text, 'tool.poetry', 'version');
     hits.push({
       language: 'Python',
       manifest: 'pyproject.toml',
-      name,
-      version,
+      name:
+        extractTomlField(text, 'project', 'name') ??
+        extractTomlField(text, 'tool.poetry', 'name'),
+      version:
+        extractTomlField(text, 'project', 'version') ??
+        extractTomlField(text, 'tool.poetry', 'version'),
       frameworks: detectPyFrameworks(text),
     });
   } else if (existsSync(join(root, 'requirements.txt'))) {
@@ -128,6 +130,8 @@ export function detectStack(root: string): StackHit[] {
     hits.push({
       language: 'Python',
       manifest: 'requirements.txt',
+      name: null,
+      version: null,
       frameworks: detectPyFrameworks(text),
     });
   }
@@ -151,13 +155,20 @@ export function detectStack(root: string): StackHit[] {
     hits.push({
       language: 'Go',
       manifest: 'go.mod',
-      name: m?.[1],
+      name: m?.[1] ?? null,
+      version: null,
       frameworks: [],
     });
   }
 
   if (existsSync(join(root, 'deno.json')) || existsSync(join(root, 'deno.jsonc'))) {
-    hits.push({ language: 'Deno', manifest: 'deno.json', frameworks: [] });
+    hits.push({
+      language: 'Deno',
+      manifest: 'deno.json',
+      name: null,
+      version: null,
+      frameworks: [],
+    });
   }
 
   if (existsSync(join(root, 'gleam.toml'))) {
@@ -165,17 +176,30 @@ export function detectStack(root: string): StackHit[] {
     hits.push({
       language: 'Gleam',
       manifest: 'gleam.toml',
-      name: text.match(/^\s*name\s*=\s*"([^"]+)"/m)?.[1],
+      name: text.match(/^\s*name\s*=\s*"([^"]+)"/m)?.[1] ?? null,
+      version: null,
       frameworks: [],
     });
   }
 
   if (existsSync(join(root, 'mix.exs'))) {
-    hits.push({ language: 'Elixir', manifest: 'mix.exs', frameworks: [] });
+    hits.push({
+      language: 'Elixir',
+      manifest: 'mix.exs',
+      name: null,
+      version: null,
+      frameworks: [],
+    });
   }
 
   if (existsSync(join(root, 'Gemfile'))) {
-    hits.push({ language: 'Ruby', manifest: 'Gemfile', frameworks: [] });
+    hits.push({
+      language: 'Ruby',
+      manifest: 'Gemfile',
+      name: null,
+      version: null,
+      frameworks: [],
+    });
   }
 
   if (existsSync(join(root, 'composer.json'))) {
@@ -183,7 +207,8 @@ export function detectStack(root: string): StackHit[] {
     hits.push({
       language: 'PHP',
       manifest: 'composer.json',
-      name: typeof pkg?.name === 'string' ? pkg.name : undefined,
+      name: stringOrNull(pkg?.name),
+      version: null,
       frameworks: [],
     });
   }
@@ -193,7 +218,8 @@ export function detectStack(root: string): StackHit[] {
     hits.push({
       language: 'Dart',
       manifest: 'pubspec.yaml',
-      name: text.match(/^name:\s*(\S+)/m)?.[1],
+      name: text.match(/^name:\s*(\S+)/m)?.[1] ?? null,
+      version: null,
       frameworks: /flutter:/m.test(text) ? ['Flutter'] : [],
     });
   }
