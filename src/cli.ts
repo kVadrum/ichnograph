@@ -2,6 +2,7 @@
 import { readFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { colorsAutoEnabled, setColorEnabled } from './color.js';
 import { renderText } from './render.js';
 import { scan } from './scan.js';
 
@@ -15,8 +16,9 @@ Usage:
   glance [path]
 
 Options:
-  -h, --help     Show this help
-  -v, --version  Show version
+  -h, --help       Show this help
+  -v, --version    Show version
+      --no-color   Disable ANSI colors (NO_COLOR env also respected)
 `;
 
 function main(argv: string[]): number {
@@ -32,11 +34,13 @@ function main(argv: string[]): number {
     return 0;
   }
 
+  setColorEnabled(colorsAutoEnabled(args, process.env, Boolean(process.stdout.isTTY)));
+
   const positional = args.filter((a) => !a.startsWith('-'));
   const target = resolve(positional[0] ?? process.cwd());
 
   const report = scan(target);
-  process.stdout.write(renderText(report));
+  process.stdout.write(renderText(report) + '\n');
   return 0;
 }
 
