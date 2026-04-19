@@ -44,6 +44,8 @@ function listDir(dir: string, ignore: Set<string>): Entry[] {
     if (ignore.has(name)) continue;
     try {
       const st = lstatSync(join(dir, name));
+      // Skip symlinks: a circular link would loop forever, and an external
+      // link (e.g. → /) would walk the host filesystem outside the target.
       if (st.isSymbolicLink()) continue;
       entries.push({ name, isDir: st.isDirectory() });
     } catch {

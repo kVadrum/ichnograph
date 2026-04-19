@@ -80,6 +80,10 @@ function detectPyFrameworks(text: string): string[] {
   return hits;
 }
 
+// Minimal TOML reader: handles single-line `key = "value"` only. Does NOT
+// handle multiline strings, arrays-of-tables, or inline tables. Sufficient
+// for the name/version fields we care about; upgrade to a real parser if
+// we start reading structured TOML.
 function extractTomlField(text: string, section: string, field: string): string | null {
   const sectionRe = new RegExp(`\\[${section.replace('.', '\\.')}\\]([\\s\\S]*?)(\\n\\[|$)`, 'i');
   const match = text.match(sectionRe);

@@ -103,6 +103,7 @@ function main(argv: string[]): number {
   }
 
   const colorFlags = parsed.noColor ? ['--no-color'] : [];
+  // JSON output must never contain ANSI escapes — they'd break JSON consumers.
   setColorEnabled(
     !parsed.json && colorsAutoEnabled(colorFlags, process.env, Boolean(process.stdout.isTTY)),
   );

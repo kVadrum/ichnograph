@@ -22,10 +22,14 @@ function runGit(cwd: string, args: string[]): string | null {
 export function detectGit(root: string, count = 5): GitSection | null {
   if (!existsSync(join(root, '.git'))) return null;
 
+  // symbolic-ref resolves the branch name even on an empty repo (no commits
+  // yet). Fallback to rev-parse for detached HEAD, where symbolic-ref fails.
   const symRaw = runGit(root, ['symbolic-ref', '--short', 'HEAD']);
   const refRaw = symRaw ?? runGit(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
   const branch = refRaw ? refRaw.trim() : null;
 
+  // %x1f is ASCII unit separator (0x1f). Using it as a field delimiter avoids
+  // collisions with spaces in %ar ("2 minutes ago") or arbitrary text in %s.
   const logRaw = runGit(root, [
     'log',
     '-n',

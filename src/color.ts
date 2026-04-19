@@ -18,6 +18,8 @@ export function setColorEnabled(value: boolean): void {
   enabled = value;
 }
 
+// Precedence: --no-color > NO_COLOR > FORCE_COLOR > TTY autodetect.
+// Conforms to https://no-color.org and https://force-color.org.
 export function colorsAutoEnabled(argv: string[], env: NodeJS.ProcessEnv, isTTY: boolean): boolean {
   if (argv.includes('--no-color')) return false;
   if (env.NO_COLOR !== undefined && env.NO_COLOR !== '') return false;
