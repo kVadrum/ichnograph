@@ -22,8 +22,9 @@ function runGit(cwd: string, args: string[]): string | null {
 export function detectGit(root: string, count = 5): GitSection | null {
   if (!existsSync(join(root, '.git'))) return null;
 
-  const branchRaw = runGit(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
-  const branch = branchRaw ? branchRaw.trim() : null;
+  const symRaw = runGit(root, ['symbolic-ref', '--short', 'HEAD']);
+  const refRaw = symRaw ?? runGit(root, ['rev-parse', '--abbrev-ref', 'HEAD']);
+  const branch = refRaw ? refRaw.trim() : null;
 
   const logRaw = runGit(root, [
     'log',
@@ -35,10 +36,15 @@ export function detectGit(root: string, count = 5): GitSection | null {
   if (logRaw) {
     for (const line of logRaw.split('\n')) {
       if (!line) continue;
-      const [hash, relTime, subject] = line.split('\x1f');
-      if (hash && relTime && subject !== undefined) {
-        commits.push({ hash, relTime, subject });
-      }
+      const i1 = line.indexOf('\x1f');
+      if (i1 < 0) continue;
+      const i2 = line.indexOf('\x1f', i1 + 1);
+      if (i2 < 0) continue;
+      commits.push({
+        hash: line.slice(0, i1),
+        relTime: line.slice(i1 + 1, i2),
+        subject: line.slice(i2 + 1),
+      });
     }
   }
 
