@@ -22,7 +22,7 @@ One-screen orientation for any codebase.
 
 stack
 ─────
-TypeScript   glance@0.1.9 · Vitest
+TypeScript   glance@0.1.15 · Vitest
 
 notes
 ─────
@@ -32,9 +32,9 @@ git
 ───
 branch: dev
 
-ccb3f9c  7 seconds ago   v0.1.8: vitest suite covering detectors
-49be503  3 minutes ago   v0.1.7: CLI flags --depth, --commits, --json
-0c79bf9  4 minutes ago   v0.1.6: zero-dep ANSI colors
+a6ed1d9  12 seconds ago  v0.1.14: why-comments for non-obvious decisions
+5b19514  2 minutes ago   v0.1.13: error on extra positionals
+be852a1  2 minutes ago   v0.1.12: stabilize --json schema
 
 structure
 ─────────
@@ -98,22 +98,57 @@ glance --no-color            # plain text, for pipes/logs
 
 ## What it detects
 
-- **Stack** — package.json, pyproject.toml, Cargo.toml, go.mod,
-  deno.json, gleam.toml, mix.exs, Gemfile, composer.json, pubspec.yaml.
-  Framework hints (Svelte/SvelteKit, Next.js, Nuxt, React, Vue, Astro,
-  Vite/Vitest, Express, Hono, Fastify, Django, FastAPI, Flask, Claude
-  SDK, OpenAI SDK, and more).
-- **README** — title + first paragraph, frontmatter-aware.
-- **Notes** — STATE, TODO, ROADMAP, CHANGELOG, SPEC, numbered specs
-  (`0X-*.md`), ARCHITECTURE, CONTRIBUTING, SECURITY, CODE_OF_CONDUCT,
-  CLAUDE.md, AGENTS.md, `adrs/`, `docs/`.
-- **Git** — current branch + recent commits (via `git log`, short hash
-  + relative time + subject).
+- **Stack** — `package.json`, `pyproject.toml`, `Cargo.toml`, `go.mod`,
+  `deno.json`, `gleam.toml`, `mix.exs`, `Gemfile`, `composer.json`,
+  `pubspec.yaml`. Framework hints (Svelte/SvelteKit, Next.js, Nuxt,
+  React, Vue, Astro, Vite/Vitest, Express, Hono, Fastify, Django,
+  FastAPI, Flask, Claude SDK, OpenAI SDK, and more).
+- **README** — title + first paragraph, YAML frontmatter-aware.
+- **Notes** — `STATE`, `TODO`, `ROADMAP`, `CHANGELOG`, `SPEC`,
+  numbered specs (`0X-*.md`), `ARCHITECTURE`, `CONTRIBUTING`,
+  `SECURITY`, `CODE_OF_CONDUCT`, `CLAUDE.md`, `AGENTS.md`, `adrs/`,
+  `docs/`.
+- **Git** — current branch + recent commits via `git log`. Works on
+  empty repos (branch-only) and repos with a detached HEAD.
 - **Structure** — depth-limited tree with sensible ignores
-  (`node_modules`, `.git`, `dist`, `.venv`, `target`, `.next`, etc.).
+  (`node_modules`, `.git`, `dist`, `.venv`, `target`, `.next`,
+  `.svelte-kit`, `.turbo`, and similar). Skips symlinks.
 
 Each detector is independent and degrades gracefully — missing git,
 missing README, unknown stack all just mean the section is omitted.
+
+## JSON output
+
+`--json` emits a structured report. Shape:
+
+```jsonc
+{
+  "schemaVersion": 1,
+  "target": "/abs/path/to/repo",
+  "readme": { "file": "README.md", "title": "…", "summary": "…" } | null,
+  "stacks": [
+    {
+      "language": "TypeScript",
+      "manifest": "package.json",
+      "name": "…" | null,
+      "version": "…" | null,
+      "frameworks": ["Vitest", …]
+    }
+  ],
+  "git": {
+    "branch": "dev" | null,
+    "commits": [{ "hash": "a1b2c3d", "relTime": "5 minutes ago", "subject": "…" }]
+  } | null,
+  "notes": [{ "name": "STATE.md", "kind": "file" | "dir", "summary": "…" | null }],
+  "tree": { "lines": ["├── src/", …], "truncated": false } | null
+}
+```
+
+Rules for consumers:
+- Optional fields are always present as an explicit `null`, never
+  absent. Consumers can tell "missing" from "unknown."
+- `schemaVersion: 1` is **provisional** through the v0.1.x series and
+  will be frozen when v0.2 ships. Branch on the version.
 
 ## Design
 
@@ -122,21 +157,28 @@ missing README, unknown stack all just mean the section is omitted.
   milliseconds for typical repos.
 - **Honest scope.** One screen, read-only, no config files, no
   plugins.
+- **Safe.** Skips symlinks so circular links can't loop and symlinks
+  pointing outside the target can't escape. Runs `git` via
+  `spawnSync` with fixed args — no shell, no injection surface.
 
 ## Development
 
 ```bash
 npm install
-npm run build     # tsc → dist/
-npm test          # vitest run
+npm run build       # tsc → dist/
+npm test            # vitest run
 npm run test:watch
-npm run dev       # tsx src/cli.ts (no build step)
+npm run dev         # tsx src/cli.ts (no build step)
 ```
+
+Tests live in `tests/` and use real temporary directories (no
+filesystem mocks) — each detector is exercised against fixtures that
+match the shapes it'll see in the wild.
 
 ## Status
 
-v0.1.x series — API surface is the CLI output and the `--json` shape.
-Neither is stable yet; wait for v0.2 before scripting against them.
+v0.1.x series — API surface (text and `--json`) is not yet stable.
+Wait for v0.2 before scripting against it. See [CHANGELOG.md](./CHANGELOG.md).
 
 ## License
 
