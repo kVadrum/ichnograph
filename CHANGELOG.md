@@ -1,16 +1,20 @@
 # Changelog
 
-All notable changes to `glance` follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+All notable changes to `alidade` follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-Nothing in the v0.1.x series is a stable public API. Wait for v0.2 before
-scripting against either the text or `--json` output.
+As of v0.2.0, the text and `--json` output are considered stable —
+they will not break without a major-version bump.
 
 ## [Unreleased]
 
-### Planned for v0.2
-- Freeze `--json` schema at `schemaVersion: 1`.
-- Publish under a final name (see npm name research).
+## [0.2.0] — 2026-04-19
+### Changed
+- Project renamed from `glance` to `alidade`. The prior name was never
+  published, so no redirect or compatibility shim is shipped.
+- Binary renamed from `glance` to `alidade`.
+- `--json` schema at `schemaVersion: 1` is now frozen. Future additive
+  fields will not bump `schemaVersion`; breaking changes will.
 
 ## [0.1.17] — 2026-04-19
 ### Added

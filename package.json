@@ -1,10 +1,10 @@
 {
-  "name": "glance",
-  "version": "0.1.17",
+  "name": "alidade",
+  "version": "0.2.0",
   "description": "One-screen orientation for any codebase.",
   "type": "module",
   "bin": {
-    "glance": "./dist/cli.js"
+    "alidade": "./dist/cli.js"
   },
   "files": [
     "dist",

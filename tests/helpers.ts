@@ -10,7 +10,7 @@ export type Fixture = {
 };
 
 export function makeFixture(): Fixture {
-  const path = mkdtempSync(join(tmpdir(), 'glance-test-'));
+  const path = mkdtempSync(join(tmpdir(), 'alidade-test-'));
   return {
     path,
     cleanup: () => rmSync(path, { recursive: true, force: true }),
