@@ -53,6 +53,20 @@ export function renderText(report: Report): string {
     out.push(...section('stack', body));
   }
 
+  if (report.git) {
+    const body: string[] = [];
+    if (report.git.branch) body.push(`branch: ${report.git.branch}`);
+    if (report.git.commits.length > 0) {
+      if (body.length > 0) body.push('');
+      for (const c of report.git.commits) {
+        body.push(`${c.hash}  ${c.relTime.padEnd(14)}  ${c.subject}`);
+      }
+    } else {
+      body.push('(no commits)');
+    }
+    out.push(...section('git', body));
+  }
+
   if (report.tree && report.tree.lines.length > 0) {
     out.push(...section('structure', report.tree.lines));
   }
