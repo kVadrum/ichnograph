@@ -1,3 +1,4 @@
+import { detectEntrypoints } from './detect/entrypoints.js';
 import { detectGit } from './detect/git.js';
 import { detectNotes } from './detect/notes.js';
 import { detectReadme } from './detect/readme.js';
@@ -16,6 +17,7 @@ export function scan(target: string, opts: ScanOptions = {}): Report {
     target,
     readme: detectReadme(target),
     stacks: detectStack(target),
+    entrypoints: detectEntrypoints(target),
     git: detectGit(target, opts.commits),
     notes: detectNotes(target),
     tree: buildTree(target, { depth: opts.depth }),

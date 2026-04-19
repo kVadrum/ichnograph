@@ -54,6 +54,16 @@ export function renderText(report: Report): string {
     out.push(...section('stack', body));
   }
 
+  if (report.entrypoints && report.entrypoints.entries.length > 0) {
+    const width = Math.max(...report.entrypoints.entries.map((e) => e.invoke.length));
+    const body = report.entrypoints.entries.map((e) => {
+      const padded = e.invoke.padEnd(width);
+      return e.command ? `${c.magenta(padded)}  ${c.dim(e.command)}` : c.magenta(padded);
+    });
+    if (report.entrypoints.truncated) body.push(c.dim('(…more)'));
+    out.push(...section('commands', body));
+  }
+
   if (report.notes.length > 0) {
     const width = Math.max(...report.notes.map((n) => n.name.length));
     const body = report.notes.map((n) => {
@@ -66,7 +76,18 @@ export function renderText(report: Report): string {
 
   if (report.git) {
     const body: string[] = [];
-    if (report.git.branch) body.push(`branch: ${c.green(report.git.branch)}`);
+    if (report.git.branch) {
+      const s = report.git.status;
+      let tail = '';
+      if (s) {
+        const parts: string[] = [];
+        if (s.staged) parts.push(`${s.staged} staged`);
+        if (s.modified) parts.push(`${s.modified} modified`);
+        if (s.untracked) parts.push(`${s.untracked} untracked`);
+        tail = c.dim(parts.length > 0 ? ` · ${parts.join(' · ')}` : ' · clean');
+      }
+      body.push(`branch: ${c.green(report.git.branch)}${tail}`);
+    }
     if (report.git.commits.length > 0) {
       if (body.length > 0) body.push('');
       for (const commit of report.git.commits) {
@@ -76,6 +97,13 @@ export function renderText(report: Report): string {
       }
     } else {
       body.push(c.dim('(no commits)'));
+    }
+    if (report.git.changed && report.git.changed.files.length > 0) {
+      body.push('');
+      const label = report.git.changed.source === 'working' ? 'in progress:' : 'last commit:';
+      body.push(c.dim(label));
+      for (const f of report.git.changed.files) body.push(`  ${f}`);
+      if (report.git.changed.truncated) body.push(c.dim('  (…more)'));
     }
     out.push(...section('git', body));
   }

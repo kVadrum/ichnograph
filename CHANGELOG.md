@@ -10,7 +10,32 @@ scripting against either the text or `--json` output.
 
 ### Planned for v0.2
 - Freeze `--json` schema at `schemaVersion: 1`.
-- Evaluate published-name on npm (`glance` vs `@kemek/glance`).
+- Publish under a final name (see npm name research).
+
+## [0.1.17] — 2026-04-19
+### Added
+- New `commands` section surfaces invokable entry points: `package.json`
+  `scripts`, `Makefile` targets, and `justfile` recipes. Ordered by
+  likely priority (`dev`, `start`, `build`, `test`, …) then alphabetical.
+  Capped at 8 entries with truncation marker.
+- JSON schema gains `entrypoints` with `entries` (`name`, `source`,
+  `invoke`, `command`) and `truncated`. Provisional v0.1.x schema.
+
+### Not yet covered
+- `pyproject.toml` `[project.scripts]` / `[tool.poetry.scripts]` — needs
+  TOML parsing beyond the minimal parser used for stack detection.
+- `Cargo.toml` `[[bin]]`.
+
+## [0.1.16] — 2026-04-19
+### Added
+- Git section now reports working-tree status next to the branch
+  (`branch: dev · 3 modified · 1 untracked`, or `· clean`).
+- Git section shows a short list of in-progress files (working-tree
+  changes) or, on a clean tree, files touched by the last commit —
+  capped at 5 entries with truncation marker.
+- JSON schema gains `git.status` (`staged` / `modified` / `untracked`
+  counts) and `git.changed` (`source: 'working' | 'last-commit'`,
+  `files`, `truncated`). Still under the provisional v0.1.x schema.
 
 ## [0.1.15] — 2026-04-18
 ### Changed

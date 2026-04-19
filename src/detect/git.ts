@@ -8,15 +8,69 @@ export type GitCommit = {
   subject: string;
 };
 
+export type GitStatusCounts = {
+  staged: number;
+  modified: number;
+  untracked: number;
+};
+
+export type GitChangedFiles = {
+  // 'working' — uncommitted changes, i.e. what you were in the middle of.
+  // 'last-commit' — files touched by HEAD, shown as a fallback on a clean
+  // tree so the signal remains useful on a fresh checkout.
+  source: 'working' | 'last-commit';
+  files: string[];
+  truncated: boolean;
+};
+
 export type GitSection = {
   branch: string | null;
   commits: GitCommit[];
+  status: GitStatusCounts | null;
+  changed: GitChangedFiles | null;
 };
+
+const CHANGED_LIMIT = 5;
 
 function runGit(cwd: string, args: string[]): string | null {
   const res = spawnSync('git', args, { cwd, encoding: 'utf8' });
   if (res.status !== 0) return null;
   return res.stdout;
+}
+
+type StatusEntry = { xy: string; path: string };
+
+// Parse `git status --porcelain=v1 -z`. Format: each entry starts with a
+// 2-character XY status code and a space, then the path. Rename (R) and copy
+// (C) entries in column X are followed by an extra null-delimited old-path
+// field — skip it so counts don't double up.
+function parsePorcelainZ(raw: string): StatusEntry[] {
+  const parts = raw.split('\0');
+  const out: StatusEntry[] = [];
+  for (let i = 0; i < parts.length; i++) {
+    const p = parts[i];
+    if (!p) continue;
+    const xy = p.slice(0, 2);
+    const path = p.slice(3);
+    out.push({ xy, path });
+    if (xy[0] === 'R' || xy[0] === 'C') i++;
+  }
+  return out;
+}
+
+function classify(entries: StatusEntry[]): GitStatusCounts {
+  let staged = 0;
+  let modified = 0;
+  let untracked = 0;
+  for (const e of entries) {
+    if (e.xy === '??') {
+      untracked++;
+      continue;
+    }
+    if (e.xy[0] !== ' ' && e.xy[0] !== '?') staged++;
+    if (e.xy[1] !== ' ' && e.xy[1] !== '?') modified++;
+  }
+  return { staged, modified, untracked };
 }
 
 export function detectGit(root: string, count = 5): GitSection | null {
@@ -52,5 +106,39 @@ export function detectGit(root: string, count = 5): GitSection | null {
     }
   }
 
-  return { branch, commits };
+  const statusRaw = runGit(root, ['status', '--porcelain=v1', '-z']);
+  const entries = statusRaw !== null ? parsePorcelainZ(statusRaw) : null;
+  const status = entries ? classify(entries) : null;
+
+  let changed: GitChangedFiles | null = null;
+  if (entries && entries.length > 0) {
+    changed = {
+      source: 'working',
+      files: entries.slice(0, CHANGED_LIMIT).map((e) => e.path),
+      truncated: entries.length > CHANGED_LIMIT,
+    };
+  } else if (commits.length > 0) {
+    // --root makes diff-tree emit files against an empty tree for the root
+    // commit; without it the very first commit diffs against a non-existent
+    // parent and yields no output.
+    const lastRaw = runGit(root, [
+      'diff-tree',
+      '--root',
+      '--no-commit-id',
+      '--name-only',
+      '-r',
+      '-z',
+      'HEAD',
+    ]);
+    if (lastRaw) {
+      const files = lastRaw.split('\0').filter(Boolean);
+      changed = {
+        source: 'last-commit',
+        files: files.slice(0, CHANGED_LIMIT),
+        truncated: files.length > CHANGED_LIMIT,
+      };
+    }
+  }
+
+  return { branch, commits, status, changed };
 }

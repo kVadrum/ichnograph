@@ -1,3 +1,4 @@
+import type { EntrypointsSection } from './detect/entrypoints.js';
 import type { GitSection } from './detect/git.js';
 import type { NoteHit } from './detect/notes.js';
 import type { ReadmeSection } from './detect/readme.js';
@@ -15,6 +16,7 @@ export type Report = {
   target: string;
   readme: ReadmeSection | null;
   stacks: StackHit[];
+  entrypoints: EntrypointsSection | null;
   git: GitSection | null;
   notes: NoteHit[];
   tree: TreeSection | null;

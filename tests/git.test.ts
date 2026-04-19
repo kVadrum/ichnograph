@@ -76,4 +76,72 @@ describe('detectGit', () => {
     const result = detectGit(fx.path);
     expect(result?.commits[0]?.subject).toBe('weird \x1f subject');
   });
+
+  it('reports zero status counts on a clean tree', () => {
+    initRepo(fx.path);
+    fx.write('a.txt', '1');
+    git(fx.path, ['add', '-A']);
+    git(fx.path, ['commit', '-q', '-m', 'init']);
+
+    const result = detectGit(fx.path);
+    expect(result?.status).toEqual({ staged: 0, modified: 0, untracked: 0 });
+  });
+
+  it('counts staged, modified, and untracked paths separately', () => {
+    initRepo(fx.path);
+    fx.write('committed.txt', 'original');
+    git(fx.path, ['add', '-A']);
+    git(fx.path, ['commit', '-q', '-m', 'init']);
+
+    fx.write('committed.txt', 'changed'); // modified (unstaged)
+    fx.write('staged-new.txt', 'new');
+    git(fx.path, ['add', 'staged-new.txt']); // staged
+    fx.write('brand-new.txt', 'untracked'); // untracked
+
+    const result = detectGit(fx.path);
+    expect(result?.status).toEqual({ staged: 1, modified: 1, untracked: 1 });
+  });
+
+  it('surfaces working-tree changes with source=working', () => {
+    initRepo(fx.path);
+    fx.write('a.txt', 'v1');
+    git(fx.path, ['add', '-A']);
+    git(fx.path, ['commit', '-q', '-m', 'init']);
+    fx.write('a.txt', 'v2');
+    fx.write('b.txt', 'new');
+
+    const result = detectGit(fx.path);
+    expect(result?.changed?.source).toBe('working');
+    expect(result?.changed?.files).toEqual(expect.arrayContaining(['a.txt', 'b.txt']));
+    expect(result?.changed?.truncated).toBe(false);
+  });
+
+  it('falls back to last-commit files on a clean tree', () => {
+    initRepo(fx.path);
+    fx.write('x.txt', '1');
+    fx.write('y.txt', '1');
+    git(fx.path, ['add', '-A']);
+    git(fx.path, ['commit', '-q', '-m', 'init']);
+
+    const result = detectGit(fx.path);
+    expect(result?.changed?.source).toBe('last-commit');
+    expect(result?.changed?.files.sort()).toEqual(['x.txt', 'y.txt']);
+  });
+
+  it('truncates changed-files list beyond the limit', () => {
+    initRepo(fx.path);
+    for (let i = 0; i < 7; i++) fx.write(`f${i}.txt`, 'x');
+
+    const result = detectGit(fx.path);
+    expect(result?.changed?.source).toBe('working');
+    expect(result?.changed?.files).toHaveLength(5);
+    expect(result?.changed?.truncated).toBe(true);
+  });
+
+  it('returns null changed on an empty repo', () => {
+    initRepo(fx.path);
+    const result = detectGit(fx.path);
+    expect(result?.status).toEqual({ staged: 0, modified: 0, untracked: 0 });
+    expect(result?.changed).toBeNull();
+  });
 });
