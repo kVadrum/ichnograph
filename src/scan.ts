@@ -1,3 +1,4 @@
+import { detectStack } from './detect/stack.js';
 import { buildTree } from './detect/tree.js';
 import type { Report } from './types.js';
 
@@ -8,6 +9,7 @@ export type ScanOptions = {
 export function scan(target: string, opts: ScanOptions = {}): Report {
   return {
     target,
+    stacks: detectStack(target),
     tree: buildTree(target, { depth: opts.depth }),
   };
 }
