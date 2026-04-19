@@ -76,6 +76,11 @@ function parseArgs(argv: string[]): Flags | Error {
     }
   }
 
+  if (positionals.length > 1) {
+    return new Error(
+      `too many arguments: expected at most one path, got ${positionals.length}`,
+    );
+  }
   flags.target = positionals[0];
   return flags;
 }

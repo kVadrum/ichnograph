@@ -81,9 +81,13 @@ export function renderText(report: Report): string {
   }
 
   if (report.tree && report.tree.lines.length > 0) {
-    const body = report.tree.lines.map((line) =>
-      line.endsWith('/') ? line.replace(/([^│├└─\s][^/]*\/)$/, (m) => c.blue(m)) : line,
-    );
+    const body = report.tree.lines.map((line) => {
+      if (!line.endsWith('/')) return line;
+      const marker = line.lastIndexOf('── ');
+      if (marker === -1) return line;
+      const split = marker + 3;
+      return line.slice(0, split) + c.blue(line.slice(split));
+    });
     if (report.tree.truncated) body.push(c.dim('(some entries truncated)'));
     out.push(...section('structure', body));
   }
