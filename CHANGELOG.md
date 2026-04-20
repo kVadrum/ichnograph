@@ -8,6 +8,14 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 
+## [0.3.1] — 2026-04-20
+### Changed
+- `package.json` now carries `repository`, `homepage`, and `bugs`
+  fields so the npm page links back to the GitHub source. No code
+  change; metadata-only release.
+- `bin` path normalized from `./dist/cli.js` to `dist/cli.js` to
+  match what npm rewrites to at publish time (no functional effect).
+
 ## [0.3.0] — 2026-04-19
 ### Changed
 - Project renamed from `alidade` to `ichnograph`. The prior name was
