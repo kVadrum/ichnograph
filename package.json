@@ -4,7 +4,7 @@
   "description": "One-screen orientation for any codebase.",
   "type": "module",
   "bin": {
-    "ichnograph": "./dist/cli.js"
+    "ichnograph": "dist/cli.js"
   },
   "files": [
     "dist",
