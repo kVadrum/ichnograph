@@ -1,31 +1,33 @@
-# alidade
+# ichnograph
 
 One-screen orientation for any codebase.
 
-An alidade is a sighting instrument — the rotating pointer on an
-astrolabe or plane-table that you aim at a landmark to take a bearing.
-This one aims at a repo. Run `alidade` in any directory and get a
-single-screen report: README excerpt, stack, runnable commands,
-surfaced notes (STATE, TODO, CHANGELOG, specs, ADRs), git state with
-branch and what you were in the middle of, and a structure tree. No
-config. No runtime dependencies. Designed as the first thing you run
-in an unfamiliar repo — or your own, a month later.
+An ichnograph is the plan of a building drawn from directly above — the
+footprint view. Vitruvius named it in *De Architectura* as one of the
+three architectural drawings, alongside the elevation and the
+perspective. This one draws the footprint of a repository. Run
+`ichnograph` in any directory and get a single-screen report: README
+excerpt, stack, runnable commands, surfaced notes (STATE, TODO,
+CHANGELOG, specs, ADRs), git state with branch and what you were in the
+middle of, and a structure tree. No config. No runtime dependencies.
+Designed as the first thing you run in an unfamiliar repo — or your
+own, a month later.
 
 ## Example
 
 ```text
-alidade
-/home/you/projects/alidade
+ichnograph
+/home/you/projects/ichnograph
 
 readme
 ──────
-alidade
+ichnograph
 
 One-screen orientation for any codebase.
 
 stack
 ─────
-TypeScript   alidade@0.2.0 · Vitest
+TypeScript   ichnograph@0.3.0 · Vitest
 
 commands
 ────────
@@ -37,15 +39,15 @@ npm run test            vitest run
 notes
 ─────
 CHANGELOG.md  Changelog
-CLAUDE.md     alidade — project notes (local only)
+CLAUDE.md     ichnograph — project notes (local only)
 
 git
 ───
 branch: dev · 2 modified · 1 untracked
 
-a6ed1d9  12 seconds ago  v0.2.0: rename to alidade
-2dfc644  5 minutes ago   v0.1.17: git status counts, changed-files ...
-6032447  13 hours ago    v0.1.15: add CHANGELOG, refresh README ...
+a6ed1d9  12 seconds ago  v0.3.0: rename to ichnograph
+0a3dc8c  5 minutes ago   v0.2.0: rename to alidade, freeze public surface
+2dfc644  6 minutes ago   v0.1.17: git status counts, changed-files ...
 
 in progress:
   src/detect/git.ts
@@ -77,8 +79,8 @@ structure
 Not yet published to npm. For now, clone and build:
 
 ```bash
-git clone <repo-url> alidade
-cd alidade
+git clone <repo-url> ichnograph
+cd ichnograph
 npm install
 npm run build
 node dist/cli.js --help
@@ -88,18 +90,18 @@ Or link it globally during development:
 
 ```bash
 npm link
-alidade --help
+ichnograph --help
 ```
 
 ## Usage
 
 ```bash
-alidade                       # report on cwd
-alidade ./path/to/repo        # report on a specific path
-alidade --depth 3             # show deeper structure
-alidade --commits 10          # show more recent commits
-alidade --json                # structured output (automation-friendly)
-alidade --no-color            # plain text, for pipes/logs
+ichnograph                       # report on cwd
+ichnograph ./path/to/repo        # report on a specific path
+ichnograph --depth 3             # show deeper structure
+ichnograph --commits 10          # show more recent commits
+ichnograph --json                # structured output (automation-friendly)
+ichnograph --no-color            # plain text, for pipes/logs
 ```
 
 ### Options
@@ -207,13 +209,15 @@ match the shapes it'll see in the wild.
 
 ## Status
 
-v0.2.0 — first cut with a stable public surface. Text output and
-`--json` schema won't break without a major version bump. See
-[CHANGELOG.md](./CHANGELOG.md).
+v0.3.0 — stable public surface. Text output and `--json` schema won't
+break without a major version bump. See [CHANGELOG.md](./CHANGELOG.md).
 
-Previously developed under the name `glance`; renamed to `alidade` at
-v0.2.0 to claim an npm-available, conflict-free name. No `glance`
-shim is provided — the prior name was never published.
+The tool was scaffolded as `glance`, briefly carried the name `alidade`
+at v0.2.0, and settled on `ichnograph` at v0.3.0. The final name is an
+ancient architectural term for a floor plan drawn from directly above
+— a tighter fit for what the tool does than a single-point sighting
+instrument. No compatibility shim is provided for the prior names;
+none were ever published.
 
 ## License
 

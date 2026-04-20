@@ -1,10 +1,10 @@
 {
-  "name": "alidade",
-  "version": "0.2.0",
+  "name": "ichnograph",
+  "version": "0.3.0",
   "description": "One-screen orientation for any codebase.",
   "type": "module",
   "bin": {
-    "alidade": "./dist/cli.js"
+    "ichnograph": "./dist/cli.js"
   },
   "files": [
     "dist",

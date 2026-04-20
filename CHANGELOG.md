@@ -1,12 +1,25 @@
 # Changelog
 
-All notable changes to `alidade` follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
+All notable changes to `ichnograph` follow [Keep a Changelog](https://keepachangelog.com/en/1.1.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 As of v0.2.0, the text and `--json` output are considered stable —
 they will not break without a major-version bump.
 
 ## [Unreleased]
+
+## [0.3.0] — 2026-04-19
+### Changed
+- Project renamed from `alidade` to `ichnograph`. The prior name was
+  never published; no redirect or compatibility shim is shipped.
+- Binary renamed from `alidade` to `ichnograph`.
+- Rationale: `alidade` risked namespace friction with an active real
+  estate private-equity firm (Alidade Capital LLC). `ichnograph` —
+  Vitruvius's term for an architectural plan drawn from directly above
+  — fits the tool better semantically and is verified conflict-cold
+  across npm, GitHub, USPTO, and general web search.
+- No behavior, CLI flag, text output, or JSON schema changes. Public
+  surface is unchanged except for the binary name.
 
 ## [0.2.0] — 2026-04-19
 ### Changed

@@ -9,11 +9,11 @@ import { scan } from './scan.js';
 const here = dirname(fileURLToPath(import.meta.url));
 const pkg = JSON.parse(readFileSync(resolve(here, '../package.json'), 'utf8'));
 
-const HELP = `alidade ${pkg.version}
+const HELP = `ichnograph ${pkg.version}
 ${pkg.description}
 
 Usage:
-  alidade [path] [options]
+  ichnograph [path] [options]
 
 Options:
   -h, --help           Show this help
@@ -88,8 +88,8 @@ function parseArgs(argv: string[]): Flags | Error {
 function main(argv: string[]): number {
   const parsed = parseArgs(argv.slice(2));
   if (parsed instanceof Error) {
-    process.stderr.write(`alidade: ${parsed.message}\n`);
-    process.stderr.write(`try 'alidade --help'\n`);
+    process.stderr.write(`ichnograph: ${parsed.message}\n`);
+    process.stderr.write(`try 'ichnograph --help'\n`);
     return 2;
   }
 
