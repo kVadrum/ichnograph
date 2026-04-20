@@ -7,6 +7,11 @@ As of v0.2.0, the text and `--json` output are considered stable —
 they will not break without a major-version bump.
 
 ## [Unreleased]
+### Added
+- Entry-points detector now surfaces `pyproject.toml` console scripts from
+  `[project.scripts]` (PEP 621) and `[tool.poetry.scripts]`. Poetry scripts
+  use `poetry run <name>` as the invocation hint; PEP 621 scripts surface
+  the bare name (on PATH after `pip install`).
 
 ## [0.3.3] — 2026-04-20
 ### Changed

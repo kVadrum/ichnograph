@@ -95,6 +95,53 @@ describe('detectEntrypoints', () => {
     expect(detectEntrypoints(fx.path)).toBeNull();
   });
 
+  it('surfaces pyproject.toml [project.scripts]', () => {
+    fx.write(
+      'pyproject.toml',
+      [
+        '[project]',
+        'name = "demo"',
+        '',
+        '[project.scripts]',
+        'demo-cli = "demo.cli:main"',
+        'demo-worker = "demo.worker:run"',
+        '',
+        '[tool.black]',
+        'line-length = 100',
+      ].join('\n'),
+    );
+    const res = detectEntrypoints(fx.path);
+    const names = res?.entries.map((e) => e.name).sort();
+    expect(names).toEqual(['demo-cli', 'demo-worker']);
+    const cli = res?.entries.find((e) => e.name === 'demo-cli');
+    expect(cli?.invoke).toBe('demo-cli');
+    expect(cli?.command).toBe('demo.cli:main');
+    expect(cli?.source).toBe('pyproject.toml');
+  });
+
+  it('surfaces pyproject.toml [tool.poetry.scripts] with poetry run invoke', () => {
+    fx.write(
+      'pyproject.toml',
+      [
+        '[tool.poetry]',
+        'name = "demo"',
+        '',
+        '[tool.poetry.scripts]',
+        'serve = "demo.server:main"  # inline comment',
+      ].join('\n'),
+    );
+    const res = detectEntrypoints(fx.path);
+    const serve = res?.entries.find((e) => e.name === 'serve');
+    expect(serve?.invoke).toBe('poetry run serve');
+    expect(serve?.command).toBe('demo.server:main');
+    expect(serve?.source).toBe('pyproject.toml');
+  });
+
+  it('tolerates pyproject.toml with no script sections', () => {
+    fx.write('pyproject.toml', '[project]\nname = "demo"\n');
+    expect(detectEntrypoints(fx.path)).toBeNull();
+  });
+
   it('merges sources when both package.json and Makefile exist', () => {
     fx.write('package.json', JSON.stringify({ scripts: { dev: 'tsx src/cli.ts' } }));
     fx.write('Makefile', 'release:\n\techo ship');

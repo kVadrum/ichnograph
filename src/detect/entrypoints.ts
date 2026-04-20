@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-export type EntrypointSource = 'package.json' | 'Makefile' | 'justfile';
+export type EntrypointSource = 'package.json' | 'Makefile' | 'justfile' | 'pyproject.toml';
 
 export type Entrypoint = {
   name: string;
@@ -121,9 +121,66 @@ function readMakeLikeTargets(
   return out;
 }
 
+// Extract raw key = "value" pairs from a specific TOML section. The minimal
+// parser tolerates comments and blank lines but does NOT handle multiline
+// strings, inline tables, or array values — console-script tables are flat
+// `name = "module:fn"` entries, which is all we need here.
+function readTomlScriptSection(
+  text: string,
+  section: string,
+): Array<[string, string]> {
+  const header = `[${section}]`;
+  const headerIdx = text.indexOf(header);
+  if (headerIdx === -1) return [];
+  const afterHeader = text.slice(headerIdx + header.length);
+  // Body runs until the next section header at the start of a line.
+  const nextSection = afterHeader.search(/\n\[/);
+  const body = nextSection === -1 ? afterHeader : afterHeader.slice(0, nextSection);
+
+  const out: Array<[string, string]> = [];
+  for (const rawLine of body.split('\n')) {
+    const line = rawLine.replace(/#.*$/, '').trim();
+    if (!line) continue;
+    const kv = /^([A-Za-z_][\w.-]*)\s*=\s*["']([^"']+)["']\s*$/.exec(line);
+    if (!kv || kv[1] === undefined || kv[2] === undefined) continue;
+    out.push([kv[1], kv[2]]);
+  }
+  return out;
+}
+
+function readPyprojectScripts(root: string): Entrypoint[] {
+  const path = join(root, 'pyproject.toml');
+  if (!existsSync(path)) return [];
+  let raw: string;
+  try {
+    raw = readFileSync(path, 'utf8');
+  } catch {
+    return [];
+  }
+
+  const out: Entrypoint[] = [];
+  const seen = new Set<string>();
+  // PEP 621 scripts install as console commands on PATH, so the plain name
+  // is the invocation after `pip install .`.
+  for (const [name, command] of readTomlScriptSection(raw, 'project.scripts')) {
+    if (seen.has(name)) continue;
+    seen.add(name);
+    out.push({ name, source: 'pyproject.toml', invoke: name, command });
+  }
+  // Poetry-managed scripts are conventionally run via `poetry run <name>`
+  // during development, before any install step.
+  for (const [name, command] of readTomlScriptSection(raw, 'tool.poetry.scripts')) {
+    if (seen.has(name)) continue;
+    seen.add(name);
+    out.push({ name, source: 'pyproject.toml', invoke: `poetry run ${name}`, command });
+  }
+  return out;
+}
+
 export function detectEntrypoints(root: string): EntrypointsSection | null {
   const all: Entrypoint[] = [
     ...readPackageScripts(root),
+    ...readPyprojectScripts(root),
     ...readMakeLikeTargets(join(root, 'Makefile'), 'Makefile', 'make'),
     ...readMakeLikeTargets(join(root, 'justfile'), 'justfile', 'just'),
   ];
