@@ -13,6 +13,21 @@ middle of, and a structure tree. No config. No runtime dependencies.
 Designed as the first thing you run in an unfamiliar repo — or your
 own, a month later.
 
+## Install
+
+```bash
+npm install -g ichnograph
+ichnograph --help
+```
+
+Or run it ad-hoc without installing:
+
+```bash
+npx ichnograph
+```
+
+Requires Node.js 20 or newer.
+
 ## Example
 
 ```text
@@ -27,7 +42,7 @@ One-screen orientation for any codebase.
 
 stack
 ─────
-TypeScript   ichnograph@0.3.0 · Vitest
+TypeScript   ichnograph@0.3.3 · Vitest
 
 commands
 ────────
@@ -35,24 +50,23 @@ npm run dev             tsx src/cli.ts
 npm run start           node dist/cli.js
 npm run build           tsc
 npm run test            vitest run
+npm run test:watch      vitest
 
 notes
 ─────
 CHANGELOG.md  Changelog
-CLAUDE.md     ichnograph — project notes (local only)
 
 git
 ───
 branch: dev · 2 modified · 1 untracked
 
-a6ed1d9  12 seconds ago  v0.3.0: rename to ichnograph
-0a3dc8c  5 minutes ago   v0.2.0: rename to alidade, freeze public surface
-2dfc644  6 minutes ago   v0.1.17: git status counts, changed-files ...
+a6ed1d9  12 seconds ago  entrypoints: detect pyproject.toml scripts
+0a3dc8c  5 minutes ago   v0.3.3: expand npm keywords for discoverability
+2dfc644  6 minutes ago   v0.3.2: surface copyright notice on npm page
 
 in progress:
-  src/detect/git.ts
-  src/types.ts
-  tests/git.test.ts
+  src/detect/entrypoints.ts
+  tests/entrypoints.test.ts
 
 structure
 ─────────
@@ -72,25 +86,6 @@ structure
 ├── README.md
 ├── package.json
 └── tsconfig.json
-```
-
-## Install
-
-Not yet published to npm. For now, clone and build:
-
-```bash
-git clone <repo-url> ichnograph
-cd ichnograph
-npm install
-npm run build
-node dist/cli.js --help
-```
-
-Or link it globally during development:
-
-```bash
-npm link
-ichnograph --help
 ```
 
 ## Usage
@@ -122,9 +117,11 @@ ichnograph --no-color            # plain text, for pipes/logs
   `pubspec.yaml`. Framework hints (Svelte/SvelteKit, Next.js, Nuxt,
   React, Vue, Astro, Vite/Vitest, Express, Hono, Fastify, Django,
   FastAPI, Flask, Claude SDK, OpenAI SDK, and more).
-- **Commands** — `package.json` `scripts`, `Makefile` targets,
-  `justfile` recipes. Ranked with likely entry points (`dev`, `start`,
-  `build`, `test`, …) first, then alphabetical.
+- **Commands** — `package.json` `scripts`, `pyproject.toml`
+  `[project.scripts]` (PEP 621) and `[tool.poetry.scripts]`,
+  `Makefile` targets, `justfile` recipes. Ranked with likely entry
+  points (`dev`, `start`, `build`, `test`, …) first, then
+  alphabetical.
 - **README** — title + first paragraph, YAML frontmatter-aware.
 - **Notes** — `STATE`, `TODO`, `ROADMAP`, `CHANGELOG`, `SPEC`,
   numbered specs (`0X-*.md`), `ARCHITECTURE`, `CONTRIBUTING`,
@@ -196,6 +193,8 @@ Rules for consumers:
 ## Development
 
 ```bash
+git clone https://github.com/kVadrum/ichnograph.git
+cd ichnograph
 npm install
 npm run build       # tsc → dist/
 npm test            # vitest run
@@ -209,15 +208,10 @@ match the shapes it'll see in the wild.
 
 ## Status
 
-v0.3.0 — stable public surface. Text output and `--json` schema won't
-break without a major version bump. See [CHANGELOG.md](./CHANGELOG.md).
-
-The tool was scaffolded as `glance`, briefly carried the name `alidade`
-at v0.2.0, and settled on `ichnograph` at v0.3.0. The final name is an
-ancient architectural term for a floor plan drawn from directly above
-— a tighter fit for what the tool does than a single-point sighting
-instrument. No compatibility shim is provided for the prior names;
-none were ever published.
+v0.3.3 — stable public surface, published on
+[npm](https://www.npmjs.com/package/ichnograph). Text output and
+`--json` schema won't break without a major version bump. See
+[CHANGELOG.md](./CHANGELOG.md).
 
 ## License
 

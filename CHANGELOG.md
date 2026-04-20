@@ -13,6 +13,13 @@ they will not break without a major-version bump.
   use `poetry run <name>` as the invocation hint; PEP 621 scripts surface
   the bare name (on PATH after `pip install`).
 
+### Changed
+- README refreshed for the published-on-npm state: install section now
+  covers `npm install -g` and `npx`, example output updated to the
+  current surface, and the Commands detector description notes
+  `pyproject.toml` script tables alongside `package.json` /
+  `Makefile` / `justfile`.
+
 ## [0.3.3] — 2026-04-20
 ### Changed
 - Expanded `package.json` `keywords` from 4 to 16 entries covering the
