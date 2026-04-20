@@ -1,6 +1,6 @@
 {
   "name": "ichnograph",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "description": "One-screen orientation for any codebase.",
   "type": "module",
   "bin": {
@@ -34,7 +34,19 @@
     "cli",
     "codebase",
     "orientation",
-    "overview"
+    "overview",
+    "repository",
+    "project",
+    "summary",
+    "report",
+    "structure",
+    "tree",
+    "stack",
+    "stack-detection",
+    "git",
+    "readme",
+    "devtools",
+    "zero-dependency"
   ],
   "license": "MIT",
   "author": "kVadrum",

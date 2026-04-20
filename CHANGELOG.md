@@ -8,6 +8,12 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 
+## [0.3.3] — 2026-04-20
+### Changed
+- Expanded `package.json` `keywords` from 4 to 16 entries covering the
+  tool's actual search axes (repository summary, structure/tree, stack
+  detection, git, readme, zero-dependency). Metadata-only.
+
 ## [0.3.2] — 2026-04-20
 ### Changed
 - README footer now carries the `Copyright (c) 2026 KeMeK Network`
