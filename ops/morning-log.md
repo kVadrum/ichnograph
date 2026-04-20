@@ -9,3 +9,5 @@ Formats:
 - `YYYY-MM-DD blocked — "<what got in the way>" → sessions/YYYY-MM-DD.md`
 
 ---
+
+2026-04-20 shipped 1e32743 — "entrypoints: detect pyproject.toml console scripts" → sessions/2026-04-20.md
