@@ -222,3 +222,5 @@ none were ever published.
 ## License
 
 MIT — see [LICENSE](LICENSE).
+
+Copyright (c) 2026 KeMeK Network

@@ -8,6 +8,12 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 
+## [0.3.2] — 2026-04-20
+### Changed
+- README footer now carries the `Copyright (c) 2026 KeMeK Network`
+  notice so the holder is visible on the npm package page, not only
+  inside `LICENSE`.
+
 ## [0.3.1] — 2026-04-20
 ### Changed
 - `package.json` now carries `repository`, `homepage`, and `bugs`
