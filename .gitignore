@@ -8,6 +8,9 @@ SPEC*.md
 0[0-9]-*.md
 adrs/
 
+.claude/settings.local.json
+.claude/hooks/
+
 .env
 .env.*
 !.env.example
