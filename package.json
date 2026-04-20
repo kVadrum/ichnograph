@@ -1,6 +1,6 @@
 {
   "name": "ichnograph",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "One-screen orientation for any codebase.",
   "type": "module",
   "bin": {

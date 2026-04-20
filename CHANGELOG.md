@@ -7,6 +7,8 @@ As of v0.2.0, the text and `--json` output are considered stable —
 they will not break without a major-version bump.
 
 ## [Unreleased]
+
+## [0.3.4] — 2026-04-20
 ### Added
 - Entry-points detector now surfaces `pyproject.toml` console scripts from
   `[project.scripts]` (PEP 621) and `[tool.poetry.scripts]`. Poetry scripts

@@ -42,7 +42,7 @@ One-screen orientation for any codebase.
 
 stack
 ─────
-TypeScript   ichnograph@0.3.3 · Vitest
+TypeScript   ichnograph@0.3.4 · Vitest
 
 commands
 ────────
@@ -208,7 +208,7 @@ match the shapes it'll see in the wild.
 
 ## Status
 
-v0.3.3 — stable public surface, published on
+v0.3.4 — stable public surface, published on
 [npm](https://www.npmjs.com/package/ichnograph). Text output and
 `--json` schema won't break without a major version bump. See
 [CHANGELOG.md](./CHANGELOG.md).
