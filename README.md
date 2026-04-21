@@ -42,7 +42,7 @@ One-screen orientation for any codebase.
 
 stack
 ─────
-TypeScript   ichnograph@0.3.4 · Vitest
+TypeScript   ichnograph@0.4.0 · Vitest
 
 commands
 ────────
@@ -119,9 +119,9 @@ ichnograph --no-color            # plain text, for pipes/logs
   FastAPI, Flask, Claude SDK, OpenAI SDK, and more).
 - **Commands** — `package.json` `scripts`, `pyproject.toml`
   `[project.scripts]` (PEP 621) and `[tool.poetry.scripts]`,
-  `Makefile` targets, `justfile` recipes. Ranked with likely entry
-  points (`dev`, `start`, `build`, `test`, …) first, then
-  alphabetical.
+  `Cargo.toml` `[[bin]]` tables, `Makefile` targets, `justfile`
+  recipes. Ranked with likely entry points (`dev`, `start`, `build`,
+  `test`, …) first, then alphabetical.
 - **README** — title + first paragraph, YAML frontmatter-aware.
 - **Notes** — `STATE`, `TODO`, `ROADMAP`, `CHANGELOG`, `SPEC`,
   numbered specs (`0X-*.md`), `ARCHITECTURE`, `CONTRIBUTING`,
@@ -208,7 +208,7 @@ match the shapes it'll see in the wild.
 
 ## Status
 
-v0.3.4 — stable public surface, published on
+v0.4.0 — stable public surface, published on
 [npm](https://www.npmjs.com/package/ichnograph). Text output and
 `--json` schema won't break without a major version bump. See
 [CHANGELOG.md](./CHANGELOG.md).
