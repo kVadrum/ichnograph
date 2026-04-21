@@ -1,7 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
-export type EntrypointSource = 'package.json' | 'Makefile' | 'justfile' | 'pyproject.toml';
+export type EntrypointSource =
+  | 'package.json'
+  | 'Makefile'
+  | 'justfile'
+  | 'pyproject.toml'
+  | 'Cargo.toml';
 
 export type Entrypoint = {
   name: string;
@@ -177,10 +182,57 @@ function readPyprojectScripts(root: string): Entrypoint[] {
   return out;
 }
 
+// Cargo `[[bin]]` is an array-of-tables: each occurrence of the `[[bin]]`
+// header starts a new table entry. We slice each entry's body up to the
+// next section header and pull out `name`. Implicit bins (src/main.rs,
+// src/bin/*.rs) aren't surfaced — that would require walking the tree
+// and assuming the crate name.
+function readCargoBins(root: string): Entrypoint[] {
+  const path = join(root, 'Cargo.toml');
+  if (!existsSync(path)) return [];
+  let raw: string;
+  try {
+    raw = readFileSync(path, 'utf8');
+  } catch {
+    return [];
+  }
+
+  const out: Entrypoint[] = [];
+  const seen = new Set<string>();
+  const headerRe = /(^|\n)\[\[bin\]\][ \t]*(?:\r?\n|$)/g;
+  let match: RegExpExecArray | null;
+  while ((match = headerRe.exec(raw)) !== null) {
+    const bodyStart = match.index + match[0].length;
+    const rest = raw.slice(bodyStart);
+    const nextSection = rest.search(/\n\[/);
+    const body = nextSection === -1 ? rest : rest.slice(0, nextSection);
+    let name: string | null = null;
+    for (const rawLine of body.split('\n')) {
+      const line = rawLine.replace(/#.*$/, '').trim();
+      if (!line) continue;
+      const kv = /^name\s*=\s*["']([^"']+)["']\s*$/.exec(line);
+      if (kv && kv[1]) {
+        name = kv[1];
+        break;
+      }
+    }
+    if (!name || seen.has(name)) continue;
+    seen.add(name);
+    out.push({
+      name,
+      source: 'Cargo.toml',
+      invoke: `cargo run --bin ${name}`,
+      command: null,
+    });
+  }
+  return out;
+}
+
 export function detectEntrypoints(root: string): EntrypointsSection | null {
   const all: Entrypoint[] = [
     ...readPackageScripts(root),
     ...readPyprojectScripts(root),
+    ...readCargoBins(root),
     ...readMakeLikeTargets(join(root, 'Makefile'), 'Makefile', 'make'),
     ...readMakeLikeTargets(join(root, 'justfile'), 'justfile', 'just'),
   ];

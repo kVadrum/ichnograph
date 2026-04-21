@@ -142,6 +142,40 @@ describe('detectEntrypoints', () => {
     expect(detectEntrypoints(fx.path)).toBeNull();
   });
 
+  it('surfaces Cargo.toml [[bin]] entries with cargo run invoke', () => {
+    fx.write(
+      'Cargo.toml',
+      [
+        '[package]',
+        'name = "demo"',
+        'version = "0.1.0"',
+        '',
+        '[[bin]]',
+        'name = "demo-cli"',
+        'path = "src/bin/cli.rs"',
+        '',
+        '[[bin]]',
+        'name = "demo-worker"  # worker entry',
+        'path = "src/bin/worker.rs"',
+        '',
+        '[dependencies]',
+        'serde = "1"',
+      ].join('\n'),
+    );
+    const res = detectEntrypoints(fx.path);
+    const names = res?.entries.map((e) => e.name).sort();
+    expect(names).toEqual(['demo-cli', 'demo-worker']);
+    const cli = res?.entries.find((e) => e.name === 'demo-cli');
+    expect(cli?.invoke).toBe('cargo run --bin demo-cli');
+    expect(cli?.command).toBeNull();
+    expect(cli?.source).toBe('Cargo.toml');
+  });
+
+  it('tolerates Cargo.toml with no [[bin]] tables', () => {
+    fx.write('Cargo.toml', '[package]\nname = "demo"\n\n[dependencies]\n');
+    expect(detectEntrypoints(fx.path)).toBeNull();
+  });
+
   it('merges sources when both package.json and Makefile exist', () => {
     fx.write('package.json', JSON.stringify({ scripts: { dev: 'tsx src/cli.ts' } }));
     fx.write('Makefile', 'release:\n\techo ship');
