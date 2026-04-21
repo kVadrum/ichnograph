@@ -7,6 +7,8 @@ As of v0.2.0, the text and `--json` output are considered stable —
 they will not break without a major-version bump.
 
 ## [Unreleased]
+
+## [0.4.0] — 2026-04-21
 ### Added
 - Entry-points detector now surfaces `Cargo.toml` `[[bin]]` tables,
   invoking each as `cargo run --bin <name>`. Implicit bins (from
