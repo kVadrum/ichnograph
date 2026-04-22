@@ -12,3 +12,4 @@ Formats:
 
 2026-04-20 shipped 1e32743 — "entrypoints: detect pyproject.toml console scripts" → sessions/2026-04-20.md
 2026-04-21 shipped 16e8084 — "entrypoints: detect Cargo.toml [[bin]] tables" → sessions/2026-04-21.md
+2026-04-22 shipped 0e841db — "readme: handle setext-style headings (Title\n===)" → sessions/2026-04-22.md
