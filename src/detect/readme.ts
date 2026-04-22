@@ -65,6 +65,10 @@ export function detectReadme(root: string): ReadmeSection | null {
     }
     title = stripMd(l);
     i++;
+    // Setext-style heading: a title line followed by === or --- acts as H1/H2.
+    // Skip the underline so it doesn't terminate the paragraph scan below.
+    const next = lines[i]?.trim() ?? '';
+    if (/^[=-]{3,}$/.test(next)) i++;
     break;
   }
 

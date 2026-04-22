@@ -59,6 +59,34 @@ Summary here.
     expect(r?.title).toBe('lowercase');
   });
 
+  it('handles setext-style H1 (underlined with ===)', () => {
+    fx.write(
+      'README.md',
+      `My Tool
+=======
+
+Summary paragraph.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('My Tool');
+    expect(r?.summary).toBe('Summary paragraph.');
+  });
+
+  it('handles setext-style H2 (underlined with ---)', () => {
+    fx.write(
+      'README.md',
+      `My Tool
+-------
+
+Summary paragraph.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('My Tool');
+    expect(r?.summary).toBe('Summary paragraph.');
+  });
+
   it('strips inline markdown from summary', () => {
     fx.write(
       'README.md',
