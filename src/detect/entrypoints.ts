@@ -199,7 +199,8 @@ function readCargoBins(root: string): Entrypoint[] {
 
   const out: Entrypoint[] = [];
   const seen = new Set<string>();
-  const headerRe = /(^|\n)\[\[bin\]\][ \t]*(?:\r?\n|$)/g;
+  // Allow TOML-legal trailing whitespace or `# comment` after the header.
+  const headerRe = /(^|\n)\[\[bin\]\][ \t]*(?:#[^\n]*)?(?:\r?\n|$)/g;
   let match: RegExpExecArray | null;
   while ((match = headerRe.exec(raw)) !== null) {
     const bodyStart = match.index + match[0].length;

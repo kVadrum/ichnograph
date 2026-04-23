@@ -7,6 +7,11 @@ As of v0.2.0, the text and `--json` output are considered stable —
 they will not break without a major-version bump.
 
 ## [Unreleased]
+### Fixed
+- Entry-points detector now tolerates TOML-legal trailing comments on
+  `[[bin]]` headers (e.g. `[[bin]]  # primary cli`). Previously the header
+  regex required only whitespace before the newline, so such tables were
+  silently skipped.
 
 ## [0.4.0] — 2026-04-21
 ### Added

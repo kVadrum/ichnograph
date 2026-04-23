@@ -171,6 +171,25 @@ describe('detectEntrypoints', () => {
     expect(cli?.source).toBe('Cargo.toml');
   });
 
+  it('tolerates trailing comments on [[bin]] headers', () => {
+    fx.write(
+      'Cargo.toml',
+      [
+        '[package]',
+        'name = "demo"',
+        '',
+        '[[bin]]  # primary cli',
+        'name = "demo-cli"',
+        '',
+        '[[bin]]   ',
+        'name = "demo-worker"',
+      ].join('\n'),
+    );
+    const res = detectEntrypoints(fx.path);
+    const names = res?.entries.map((e) => e.name).sort();
+    expect(names).toEqual(['demo-cli', 'demo-worker']);
+  });
+
   it('tolerates Cargo.toml with no [[bin]] tables', () => {
     fx.write('Cargo.toml', '[package]\nname = "demo"\n\n[dependencies]\n');
     expect(detectEntrypoints(fx.path)).toBeNull();
