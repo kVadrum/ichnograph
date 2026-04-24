@@ -29,6 +29,16 @@ const DIR_PATTERNS: Array<{ match: (n: string) => boolean; priority: number }> =
   { match: (n) => /^docs?$/i.test(n), priority: 9 },
 ];
 
+function stripInlineMd(line: string): string {
+  return line
+    .replace(/`([^`]+)`/g, '$1')
+    .replace(/\*\*([^*]+)\*\*/g, '$1')
+    .replace(/\*([^*]+)\*/g, '$1')
+    .replace(/__([^_]+)__/g, '$1')
+    .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    .trim();
+}
+
 function firstMeaningfulLine(path: string): string | null {
   let raw: string;
   try {
@@ -47,7 +57,7 @@ function firstMeaningfulLine(path: string): string | null {
     const l = lines[i]?.trim() ?? '';
     if (!l) continue;
     const h = l.match(/^#{1,6}\s+(.+)$/);
-    const text = (h ? h[1] : l)?.trim() ?? '';
+    const text = stripInlineMd((h ? h[1] : l) ?? '');
     if (text.length === 0) continue;
     return text.length > 80 ? text.slice(0, 77) + '…' : text;
   }

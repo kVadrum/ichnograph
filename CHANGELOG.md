@@ -12,6 +12,10 @@ they will not break without a major-version bump.
   `[[bin]]` headers (e.g. `[[bin]]  # primary cli`). Previously the header
   regex required only whitespace before the newline, so such tables were
   silently skipped.
+- Notes detector now strips inline markdown (code spans, bold/italic,
+  links) from the one-line summary it extracts for `STATE.md`, `TODO.md`,
+  etc. Previously a heading like `# **Status**: active` surfaced as
+  `**Status**: active` with the literal asterisks.
 
 ## [0.4.0] — 2026-04-21
 ### Added

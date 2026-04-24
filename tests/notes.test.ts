@@ -33,6 +33,12 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Tuesday snapshot');
   });
 
+  it('strips inline markdown from the summary', () => {
+    fx.write('STATE.md', '# **Status**: `active` and [green](https://x)');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Status: active and green');
+  });
+
   it('matches numbered spec files', () => {
     fx.write('00-overview.md', '# Overview');
     fx.write('01-architecture.md', '# Architecture');
