@@ -39,6 +39,21 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Status: active and green');
   });
 
+  it('skips fenced code blocks when extracting summary', () => {
+    fx.write(
+      'STATE.md',
+      '```ts\nconst x = 1;\n```\n\nReal status line follows the example',
+    );
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Real status line follows the example');
+  });
+
+  it('handles tilde-fenced code blocks too', () => {
+    fx.write('STATE.md', '~~~\nfoo\n~~~\n\nActual summary');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Actual summary');
+  });
+
   it('matches numbered spec files', () => {
     fx.write('00-overview.md', '# Overview');
     fx.write('01-architecture.md', '# Architecture');

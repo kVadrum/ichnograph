@@ -16,6 +16,10 @@ they will not break without a major-version bump.
   links) from the one-line summary it extracts for `STATE.md`, `TODO.md`,
   etc. Previously a heading like `# **Status**: active` surfaced as
   `**Status**: active` with the literal asterisks.
+- Notes detector now skips fenced code blocks (` ``` ` / `~~~`) when
+  extracting the one-line summary. A note that led with an example
+  block previously surfaced ` ``` ` (or ` ```ts `) as the summary; it
+  now digs past the block to the next prose line.
 
 ## [0.4.0] — 2026-04-21
 ### Added

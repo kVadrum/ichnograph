@@ -56,6 +56,16 @@ function firstMeaningfulLine(path: string): string | null {
   for (; i < lines.length; i++) {
     const l = lines[i]?.trim() ?? '';
     if (!l) continue;
+    // Skip fenced code blocks: the opening fence isn't meaningful prose, and
+    // surfacing "```" or "```ts" as the summary is worse than digging past
+    // it to the next real line.
+    const fence = l.match(/^(`{3,}|~{3,})/);
+    if (fence && fence[1]) {
+      const marker = fence[1];
+      i++;
+      while (i < lines.length && !(lines[i]?.trim().startsWith(marker))) i++;
+      continue;
+    }
     const h = l.match(/^#{1,6}\s+(.+)$/);
     const text = stripInlineMd((h ? h[1] : l) ?? '');
     if (text.length === 0) continue;
