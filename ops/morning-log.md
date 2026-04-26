@@ -15,3 +15,4 @@ Formats:
 2026-04-22 shipped 0e841db — "readme: handle setext-style headings (Title\n===)" → sessions/2026-04-22.md
 2026-04-23 shipped 7a3a8d8 — "entrypoints: tolerate trailing comments on Cargo [[bin]] headers" → sessions/2026-04-23.md
 2026-04-24 shipped 4abb271 — "notes: strip inline markdown from summaries" → sessions/2026-04-24.md
+2026-04-26 shipped f6a8b23 — "notes: skip fenced code blocks when extracting summary" → sessions/2026-04-26.md
