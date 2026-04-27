@@ -77,10 +77,28 @@ export function detectReadme(root: string): ReadmeSection | null {
   const paraLines: string[] = [];
   for (; i < lines.length; i++) {
     const l = lines[i] ?? '';
-    if (!l.trim()) break;
-    if (l.trim().startsWith('#')) break;
-    if (/^[-=]{3,}$/.test(l.trim())) break;
-    paraLines.push(l.trim());
+    const trimmed = l.trim();
+
+    // Skip a leading fenced code block: READMEs sometimes lead with a
+    // usage/install snippet before the description, and surfacing the
+    // fence contents is worse than digging past it to real prose. Once
+    // the paragraph has started, a fence terminates it like a heading.
+    const fence = trimmed.match(/^(`{3,}|~{3,})/);
+    if (fence && fence[1]) {
+      if (paraLines.length > 0) break;
+      const marker = fence[1];
+      i++;
+      while (i < lines.length && !(lines[i]?.trim().startsWith(marker))) i++;
+      // Eat blank lines after the close fence so the for-loop's i++ lands
+      // on the next non-blank line.
+      while (i + 1 < lines.length && !(lines[i + 1]?.trim())) i++;
+      continue;
+    }
+
+    if (!trimmed) break;
+    if (trimmed.startsWith('#')) break;
+    if (/^[-=]{3,}$/.test(trimmed)) break;
+    paraLines.push(trimmed);
   }
 
   const summary = paraLines.length > 0 ? stripMd(paraLines.join(' ')) : null;

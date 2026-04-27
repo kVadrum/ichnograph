@@ -87,6 +87,54 @@ Summary paragraph.
     expect(r?.summary).toBe('Summary paragraph.');
   });
 
+  it('skips a leading fenced code block to find the description', () => {
+    fx.write(
+      'README.md',
+      `# My Tool
+
+\`\`\`sh
+$ npx mytool
+\`\`\`
+
+A tool that does X.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('My Tool');
+    expect(r?.summary).toBe('A tool that does X.');
+  });
+
+  it('skips tilde-fenced code blocks too', () => {
+    fx.write(
+      'README.md',
+      `# My Tool
+
+~~~
+example
+~~~
+
+Real description here.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('Real description here.');
+  });
+
+  it('returns null summary when only a fenced block follows the title', () => {
+    fx.write(
+      'README.md',
+      `# Title
+
+\`\`\`
+example
+\`\`\`
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('Title');
+    expect(r?.summary).toBeNull();
+  });
+
   it('strips inline markdown from summary', () => {
     fx.write(
       'README.md',

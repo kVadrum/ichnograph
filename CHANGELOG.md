@@ -20,6 +20,10 @@ they will not break without a major-version bump.
   extracting the one-line summary. A note that led with an example
   block previously surfaced ` ``` ` (or ` ```ts `) as the summary; it
   now digs past the block to the next prose line.
+- Readme detector now skips a leading fenced code block when extracting
+  the first paragraph. A README that led with a usage/install snippet
+  before the description previously surfaced the fence content as the
+  summary; it now digs past the block to the real prose.
 
 ## [0.4.0] — 2026-04-21
 ### Added
