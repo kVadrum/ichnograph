@@ -76,7 +76,7 @@ function firstMeaningfulLine(path: string): string | null {
 
 function countDirEntries(path: string): number {
   try {
-    return readdirSync(path).filter((n) => !n.startsWith('.')).length;
+    return readdirSync(path).filter((n: string) => !n.startsWith('.')).length;
   } catch {
     return 0;
   }
