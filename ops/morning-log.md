@@ -17,3 +17,4 @@ Formats:
 2026-04-24 shipped 4abb271 — "notes: strip inline markdown from summaries" → sessions/2026-04-24.md
 2026-04-26 shipped f6a8b23 — "notes: skip fenced code blocks when extracting summary" → sessions/2026-04-26.md
 2026-04-27 shipped 138725b — "readme: skip leading fenced code block when extracting summary" → sessions/2026-04-27.md
+2026-04-28 shipped c492ec7 — "notes/readme: strip image syntax without leaving stray !" → sessions/2026-04-28.md
