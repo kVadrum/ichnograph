@@ -35,6 +35,9 @@ function stripInlineMd(line: string): string {
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')
     .replace(/__([^_]+)__/g, '$1')
+    // Images before links: ![alt](url) → alt, ![](url) → ''. Order matters:
+    // the link regex would otherwise leave a stray '!' in front of the alt.
+    .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
     .trim();
 }

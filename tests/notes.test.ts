@@ -39,6 +39,18 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Status: active and green');
   });
 
+  it('strips image syntax without leaving a stray !', () => {
+    fx.write('STATE.md', '# ![CI](https://x/badge.svg) Status active');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('CI Status active');
+  });
+
+  it('drops empty-alt images entirely', () => {
+    fx.write('STATE.md', '# ![](https://x/logo.png) Real status');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Real status');
+  });
+
   it('skips fenced code blocks when extracting summary', () => {
     fx.write(
       'STATE.md',

@@ -24,6 +24,11 @@ they will not break without a major-version bump.
   the first paragraph. A README that led with a usage/install snippet
   before the description previously surfaced the fence content as the
   summary; it now digs past the block to the real prose.
+- Inline-markdown stripping (used by both the readme summary and the
+  notes summaries) now handles image syntax. `![alt](url)` previously
+  left a stray `!` because the link regex stripped `[alt](url)` but not
+  the leading bang; images now collapse to the alt text (or are dropped
+  entirely if alt is empty).
 
 ## [0.4.0] — 2026-04-21
 ### Added

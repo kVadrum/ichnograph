@@ -146,4 +146,28 @@ See [the docs](https://example.com) for **more** info.
     const r = detectReadme(fx.path);
     expect(r?.summary).toBe('See the docs for more info.');
   });
+
+  it('strips image syntax without leaving a stray !', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+![CI](https://example.com/badge.svg) A tool that does X.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('CI A tool that does X.');
+  });
+
+  it('drops empty-alt images entirely', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+![](https://example.com/logo.png) Real description.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('Real description.');
+  });
 });
