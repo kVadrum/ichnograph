@@ -39,6 +39,12 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Status: active and green');
   });
 
+  it('strips single-underscore italic without touching intraword underscores', () => {
+    fx.write('STATE.md', '# _draft_ status for CODE_OF_CONDUCT review');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('draft status for CODE_OF_CONDUCT review');
+  });
+
   it('strips image syntax without leaving a stray !', () => {
     fx.write('STATE.md', '# ![CI](https://x/badge.svg) Status active');
     const notes = detectNotes(fx.path);

@@ -147,6 +147,18 @@ See [the docs](https://example.com) for **more** info.
     expect(r?.summary).toBe('See the docs for more info.');
   });
 
+  it('strips single-underscore italic without touching intraword underscores', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+A _draft_ tool for the CODE_OF_CONDUCT pipeline.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('A draft tool for the CODE_OF_CONDUCT pipeline.');
+  });
+
   it('strips image syntax without leaving a stray !', () => {
     fx.write(
       'README.md',

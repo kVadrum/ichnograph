@@ -29,6 +29,11 @@ they will not break without a major-version bump.
   left a stray `!` because the link regex stripped `[alt](url)` but not
   the leading bang; images now collapse to the alt text (or are dropped
   entirely if alt is empty).
+- Inline-markdown stripping now handles single-underscore italic
+  (`_text_`). The bold form `__text__` was already supported but the
+  italic form was not, so a heading like `# _draft_ status` previously
+  surfaced as `_draft_ status`. Lookbehind/lookahead guards keep
+  intraword underscores in identifiers like `CODE_OF_CONDUCT` intact.
 
 ## [0.4.0] — 2026-04-21
 ### Added
