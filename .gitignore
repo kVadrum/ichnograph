@@ -19,3 +19,6 @@ adrs/
 *.log
 .vite/
 coverage/
+
+# Wrapper-managed state file: indicates origin push is failing
+ops/.push-broken

@@ -14,6 +14,36 @@ Ship ONE small, valuable improvement to `dev`, OR skip cleanly. No
 busywork commits. Never touch `main`. Never publish to npm. No new
 remotes, repos, or public artifacts.
 
+<!-- canonical: ~/dev/ai/prompts/push-broken-mode.md -->
+## PUSH_BROKEN MODE
+
+The wrapper owns all `git push origin dev` operations — you never
+push from inside the cycle. The wrapper probes push at cycle start
+and cycle end; queued local commits land automatically when auth is
+healthy.
+
+If `ops/.push-broken` exists in the working tree at the start of
+this cycle (note: ichnograph uses `ops/.push-broken`, not the
+standard `ops/autonomous/.push-broken`), the wrapper has determined
+push is currently failing (bad auth, expired token, network flap,
+OOM-killed ssh-agent). You are in **PUSH_BROKEN mode**. Override:
+
+- **Steps 5 + 6 (session report):** SKIP entirely. Do not write a
+  session report and do not commit one. The previous design
+  generated dozens of "skipped because push broken" report-only
+  commits across rigs — that's the noise this mode exists to
+  eliminate.
+- **Decide step:** do NOT skip real code work just because push is
+  broken. Commit locally as usual. If you skip for genuine reasons
+  (nothing clears the bar), skip silently — no report, no
+  morning-log line.
+
+PUSH_BROKEN does not change what you choose to work on. Real work
+continues; only the session-report bookkeeping is suppressed. The
+sentinel itself contains diagnostic info (`broken-since`,
+`queued-commits`, `last-error`) that the morning brief surfaces; you
+don't need to add to it.
+
 ## PROCESS
 
 ### 1. Orient (target: 2–3 min)
@@ -52,12 +82,14 @@ commits.
 - `npm run build` must be clean (run it).
 - If you break something you can't quickly fix, revert.
 
-### 4. Commit + push (only if you shipped)
+### 4. Commit (only if you shipped)
 
 - Stage only intentionally changed files (code + tests — NOT the
   session report yet).
 - One-line commit message. No `Co-Authored-By`.
-- `git push origin dev`.
+- **Do not push.** The wrapper owns all `git push` calls and runs
+  them at cycle boundaries — you only commit. See PUSH_BROKEN MODE
+  above for the responsibility split.
 - The guardrails hook blocks `main` / `npm publish` / `rm -rf` outside
   the project. Trust the hook.
 
@@ -114,12 +146,12 @@ fine — it's still valuable signal.
 - Skipped: `YYYY-MM-DD skipped — "<brief reason>" → sessions/YYYY-MM-DD.md`
 - Blocked: `YYYY-MM-DD blocked — "<what got in the way>" → sessions/YYYY-MM-DD.md`
 
-### 6. Commit the report
+### 6. Commit the report (skip in PUSH_BROKEN; otherwise always)
 
 - Stage `ops/sessions/YYYY-MM-DD.md` and `ops/morning-log.md`.
 - Commit with a one-line message like
   `ops: 2026-04-20 session report (<outcome>)`.
-- `git push origin dev`.
+- **Do not push** — the wrapper handles it.
 
 This is a second commit on top of the code commit (if any). Keeping
 them separate means the code commit is reviewable on its own.
@@ -130,4 +162,5 @@ them separate means the code commit is reviewable on its own.
 - Never push to `main`. Never `npm publish`. Never create remotes.
 - Don't refactor broadly. One focused change.
 - Exit cleanly whether you shipped, skipped, or blocked.
-- Always produce the session report, even on skip/block.
+- Always produce the session report, even on skip/block. (Exception:
+  PUSH_BROKEN mode skips reports entirely; see that section.)
