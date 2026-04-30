@@ -19,3 +19,4 @@ Formats:
 2026-04-27 shipped 138725b — "readme: skip leading fenced code block when extracting summary" → sessions/2026-04-27.md
 2026-04-28 shipped c492ec7 — "notes/readme: strip image syntax without leaving stray !" → sessions/2026-04-28.md
 2026-04-29 blocked — "code committed locally as 862cb00 but git push could not auth to github" → sessions/2026-04-29.md
+2026-04-30 shipped 4dbabdc — "notes/readme: strip strikethrough (~~text~~) from summaries" → sessions/2026-04-30.md
