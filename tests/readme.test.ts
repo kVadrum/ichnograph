@@ -159,6 +159,18 @@ A _draft_ tool for the CODE_OF_CONDUCT pipeline.
     expect(r?.summary).toBe('A draft tool for the CODE_OF_CONDUCT pipeline.');
   });
 
+  it('strips strikethrough (~~text~~)', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+A ~~deprecated~~ revived tool for the pipeline.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('A deprecated revived tool for the pipeline.');
+  });
+
   it('strips image syntax without leaving a stray !', () => {
     fx.write(
       'README.md',

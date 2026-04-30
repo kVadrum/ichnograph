@@ -34,6 +34,11 @@ they will not break without a major-version bump.
   italic form was not, so a heading like `# _draft_ status` previously
   surfaced as `_draft_ status`. Lookbehind/lookahead guards keep
   intraword underscores in identifiers like `CODE_OF_CONDUCT` intact.
+- Inline-markdown stripping now handles strikethrough (`~~text~~`).
+  Previously a heading like `# ~~old plan~~ new plan` surfaced with the
+  literal tildes intact. The fence detection that runs before the strip
+  helper still treats `~~~` as a code-fence marker, so the two don't
+  collide.
 
 ## [0.4.0] — 2026-04-21
 ### Added

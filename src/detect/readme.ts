@@ -32,6 +32,7 @@ function stripMd(line: string): string {
     // non-word boundaries on both sides so intraword underscores in tokens
     // like `CODE_OF_CONDUCT` or `tool_v2` aren't mistaken for emphasis.
     .replace(/(?<![A-Za-z0-9_])_([^_\n]+?)_(?![A-Za-z0-9_])/g, '$1')
+    .replace(/~~([^~\n]+)~~/g, '$1')
     // Images before links: ![alt](url) → alt, ![](url) → ''. Order matters:
     // the link regex would otherwise leave a stray '!' in front of the alt.
     .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')

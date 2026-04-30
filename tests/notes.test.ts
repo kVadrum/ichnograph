@@ -45,6 +45,12 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('draft status for CODE_OF_CONDUCT review');
   });
 
+  it('strips strikethrough (~~text~~)', () => {
+    fx.write('STATE.md', '# ~~old plan~~ new plan in motion');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('old plan new plan in motion');
+  });
+
   it('strips image syntax without leaving a stray !', () => {
     fx.write('STATE.md', '# ![CI](https://x/badge.svg) Status active');
     const notes = detectNotes(fx.path);
