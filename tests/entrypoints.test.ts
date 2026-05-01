@@ -81,6 +81,29 @@ describe('detectEntrypoints', () => {
     expect(res?.entries.find((e) => e.name === 'lint')?.source).toBe('justfile');
   });
 
+  it('parses justfile recipes with parameters', () => {
+    fx.write(
+      'justfile',
+      [
+        "build target='debug':",
+        '\tcargo build --profile {{target}}',
+        '',
+        'bench *args:',
+        '\tcargo bench {{args}}',
+        '',
+        'deploy env stage:',
+        '\techo {{env}} {{stage}}',
+        '',
+        'set shell := ["bash", "-c"]',
+        'alias b := build',
+      ].join('\n'),
+    );
+    const res = detectEntrypoints(fx.path);
+    const names = res?.entries.map((e) => e.name).sort();
+    expect(names).toEqual(['bench', 'build', 'deploy']);
+    expect(res?.entries.find((e) => e.name === 'build')?.invoke).toBe('just build');
+  });
+
   it('truncates past the display limit', () => {
     const scripts: Record<string, string> = {};
     for (let i = 0; i < 12; i++) scripts[`cmd${i}`] = 'x';

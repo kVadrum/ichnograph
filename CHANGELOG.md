@@ -8,6 +8,13 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Fixed
+- Entry-points detector now surfaces justfile recipes that declare
+  parameters (`build target='debug':`, `bench *args:`,
+  `deploy env stage:`). The previous header regex required `:`
+  immediately after the recipe name, so any recipe with arguments was
+  silently skipped. Makefile parsing keeps the strict regex since
+  Makefile targets never carry inline parameter syntax and the looser
+  pattern would mis-classify rare assignment lines like `KEY = "x:y"`.
 - Entry-points detector now tolerates TOML-legal trailing comments on
   `[[bin]]` headers (e.g. `[[bin]]  # primary cli`). Previously the header
   regex required only whitespace before the newline, so such tables were

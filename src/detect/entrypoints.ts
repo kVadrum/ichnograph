@@ -104,13 +104,21 @@ function readMakeLikeTargets(
     return [];
   }
 
+  // justfile recipes can carry parameters between the name and the trailing
+  // colon — `build target='debug':`, `bench *args:`. Makefile targets never
+  // have inline parameter syntax, so we keep its header regex strict to
+  // avoid mis-matching assignment lines like `KEY = "x:y"`.
+  const headerRe =
+    source === 'justfile'
+      ? /^([A-Za-z_][A-Za-z0-9_.\/-]*)(?:[ \t]+[^\n]*?)?[ \t]*:(?!=)/
+      : /^([A-Za-z_][A-Za-z0-9_.\/-]*)\s*:(?!=)/;
   const out: Entrypoint[] = [];
   const seen = new Set<string>();
   for (const line of raw.split('\n')) {
     // A recipe header looks like "target:" or "target: dep1 dep2". Skip
     // indented lines (those are recipe bodies) and directives like `.PHONY:`.
     if (line.startsWith('\t') || line.startsWith(' ')) continue;
-    const match = /^([A-Za-z_][A-Za-z0-9_.\/-]*)\s*:(?!=)/.exec(line);
+    const match = headerRe.exec(line);
     if (!match) continue;
     const name = match[1];
     if (!name || name.startsWith('.')) continue; // skip .PHONY, .SUFFIXES, etc.
