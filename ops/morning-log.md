@@ -21,3 +21,4 @@ Formats:
 2026-04-29 blocked — "code committed locally as 862cb00 but git push could not auth to github" → sessions/2026-04-29.md
 2026-04-30 shipped 4dbabdc — "notes/readme: strip strikethrough (~~text~~) from summaries" → sessions/2026-04-30.md
 2026-05-01 shipped 7fb8208 — "entrypoints: detect justfile recipes with parameters" → sessions/2026-05-01.md
+2026-05-02 shipped 49c9ff1 — "notes/readme: strip reference-style links and images from summaries" → sessions/2026-05-02.md
