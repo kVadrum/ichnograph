@@ -8,6 +8,13 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Fixed
+- Inline-markdown stripping (used by both the readme summary and the
+  notes summaries) now handles reference-style links and images
+  (`[text][ref]`, `![alt][ref]`). A README badge cluster like
+  `[![CI][ci-badge]][ci-url]` previously surfaced with the brackets
+  intact; it now collapses to `CI`. Bare bracketed shortcuts (`[draft]`,
+  `[WIP]`) are intentionally left alone — too often literal in prose to
+  safely strip.
 - Entry-points detector now surfaces justfile recipes that declare
   parameters (`build target='debug':`, `bench *args:`,
   `deploy env stage:`). The previous header regex required `:`

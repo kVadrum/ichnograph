@@ -63,6 +63,21 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Real status');
   });
 
+  it('strips reference-style links and images', () => {
+    fx.write(
+      'STATE.md',
+      '# ![CI][ci-badge] [Project][1] is shipping',
+    );
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('CI Project is shipping');
+  });
+
+  it('leaves bare bracketed shortcuts alone', () => {
+    fx.write('STATE.md', '# [draft] notes pending review');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('[draft] notes pending review');
+  });
+
   it('skips fenced code blocks when extracting summary', () => {
     fx.write(
       'STATE.md',

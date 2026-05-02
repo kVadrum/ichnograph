@@ -194,4 +194,32 @@ A ~~deprecated~~ revived tool for the pipeline.
     const r = detectReadme(fx.path);
     expect(r?.summary).toBe('Real description.');
   });
+
+  it('strips reference-style links and images', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+[![CI][ci-badge]][ci-url] A [great tool][project] for the job.
+
+[ci-badge]: https://example.com/badge.svg
+[ci-url]: https://example.com/ci
+[project]: https://example.com
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('CI A great tool for the job.');
+  });
+
+  it('leaves bare bracketed shortcuts alone', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+A [draft] writeup of the design.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('A [draft] writeup of the design.');
+  });
 });

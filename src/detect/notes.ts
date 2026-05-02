@@ -43,7 +43,12 @@ function stripInlineMd(line: string): string {
     // Images before links: ![alt](url) → alt, ![](url) → ''. Order matters:
     // the link regex would otherwise leave a stray '!' in front of the alt.
     .replace(/!\[([^\]]*)\]\([^)]+\)/g, '$1')
+    .replace(/!\[([^\]]*)\]\[[^\]]*\]/g, '$1')
     .replace(/\[([^\]]+)\]\([^)]+\)/g, '$1')
+    // Reference-style links: [text][ref] → text. Shortcut form [text]
+    // is intentionally not stripped — bare brackets in prose are too
+    // often literal (e.g. `[draft]`, `[WIP]`) to safely collapse.
+    .replace(/\[([^\]]+)\]\[[^\]]*\]/g, '$1')
     .trim();
 }
 
