@@ -42,6 +42,12 @@ function stripMd(line: string): string {
     // is intentionally not stripped — bare brackets in prose are too
     // often literal (e.g. `[draft]`, `[WIP]`) to safely collapse.
     .replace(/\[([^\]]+)\]\[[^\]]*\]/g, '$1')
+    // CommonMark autolinks: <https://x>, <mailto:a@b>, <a@b.com> → drop
+    // the angle brackets. The URI form requires a scheme (letter then
+    // alphanum/+.-); the email form requires `user@host.tld`. Bare
+    // `<word>` literals in prose stay put because they match neither.
+    .replace(/<([a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]+)>/g, '$1')
+    .replace(/<([^\s<>@]+@[^\s<>@.]+(?:\.[^\s<>@.]+)+)>/g, '$1')
     .trim();
 }
 

@@ -9,6 +9,13 @@ they will not break without a major-version bump.
 ## [Unreleased]
 ### Fixed
 - Inline-markdown stripping (used by both the readme summary and the
+  notes summaries) now handles CommonMark autolinks: `<https://x>`,
+  `<mailto:a@b>`, and `<a@b.com>` collapse to their URL/email content
+  instead of surfacing with literal angle brackets. The URI form
+  requires a scheme (letter then alphanum/`+.-`); the email form
+  requires `user@host.tld`. Bare `<word>` literals in prose stay
+  intact because they match neither pattern.
+- Inline-markdown stripping (used by both the readme summary and the
   notes summaries) now handles reference-style links and images
   (`[text][ref]`, `![alt][ref]`). A README badge cluster like
   `[![CI][ci-badge]][ci-url]` previously surfaced with the brackets

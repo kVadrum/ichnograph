@@ -78,6 +78,23 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('[draft] notes pending review');
   });
 
+  it('strips autolink angle brackets around URLs and emails', () => {
+    fx.write(
+      'STATE.md',
+      '# See <https://example.com> or email <ops@example.com> for help',
+    );
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe(
+      'See https://example.com or email ops@example.com for help',
+    );
+  });
+
+  it('leaves bare angle-bracketed words alone (not autolinks)', () => {
+    fx.write('STATE.md', '# Replace <name> with the project identifier');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Replace <name> with the project identifier');
+  });
+
   it('skips fenced code blocks when extracting summary', () => {
     fx.write(
       'STATE.md',

@@ -222,4 +222,32 @@ A [draft] writeup of the design.
     const r = detectReadme(fx.path);
     expect(r?.summary).toBe('A [draft] writeup of the design.');
   });
+
+  it('strips autolink angle brackets around URLs and emails', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+Visit <https://example.com> or email <ops@example.com> for support.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe(
+      'Visit https://example.com or email ops@example.com for support.',
+    );
+  });
+
+  it('leaves bare angle-bracketed words alone (not autolinks)', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+Replace <name> with the project identifier in your config.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe(
+      'Replace <name> with the project identifier in your config.',
+    );
+  });
 });
