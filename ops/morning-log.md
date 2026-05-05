@@ -23,3 +23,4 @@ Formats:
 2026-05-01 shipped 7fb8208 — "entrypoints: detect justfile recipes with parameters" → sessions/2026-05-01.md
 2026-05-02 shipped 49c9ff1 — "notes/readme: strip reference-style links and images from summaries" → sessions/2026-05-02.md
 2026-05-04 shipped 5015462 — "notes/readme: strip CommonMark autolink angle brackets" → sessions/2026-05-04.md
+2026-05-05 shipped 37a3d2d — "notes/readme: strip HTML comments from summaries" → sessions/2026-05-05.md
