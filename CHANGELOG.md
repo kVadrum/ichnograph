@@ -9,6 +9,15 @@ they will not break without a major-version bump.
 ## [Unreleased]
 ### Fixed
 - Inline-markdown stripping (used by both the readme summary and the
+  notes summaries) now strips HTML comments (`<!-- ... -->`). A
+  `STATE.md` whose first non-blank line is a canonical-home marker
+  (`<!-- canonical: foo.md -->`) previously surfaced that comment as
+  the one-line summary; it now collapses to empty so the caller digs
+  past it to the next real line. Mid-line comments consume their
+  surrounding whitespace so no double space is left behind. The
+  paragraph-level joiner in the readme detector handles comments that
+  span lines as well.
+- Inline-markdown stripping (used by both the readme summary and the
   notes summaries) now handles CommonMark autolinks: `<https://x>`,
   `<mailto:a@b>`, and `<a@b.com>` collapse to their URL/email content
   instead of surfacing with literal angle brackets. The URI form

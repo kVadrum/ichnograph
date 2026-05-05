@@ -237,6 +237,31 @@ Visit <https://example.com> or email <ops@example.com> for support.
     );
   });
 
+  it('strips inline HTML comments from the summary', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+A real <!-- TODO: rewrite --> description of the tool.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('A real description of the tool.');
+  });
+
+  it('strips a multi-line HTML comment that spans paragraph lines', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+A real <!-- comment that
+keeps going across lines --> description.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('A real description.');
+  });
+
   it('leaves bare angle-bracketed words alone (not autolinks)', () => {
     fx.write(
       'README.md',

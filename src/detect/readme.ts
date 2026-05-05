@@ -24,6 +24,12 @@ function findReadme(root: string): string | null {
 
 function stripMd(line: string): string {
   return line
+    // HTML comments first: a `<!-- canonical: x -->` marker (or a TOC sentinel
+    // like `<!-- toc -->`) at the start of a paragraph would otherwise surface
+    // as part of the summary. Surrounding whitespace is consumed so a mid-line
+    // comment doesn't leave a double space behind. The `[\s\S]*?` body lets a
+    // comment span the joined paragraph lines.
+    .replace(/\s*<!--[\s\S]*?-->\s*/g, ' ')
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')

@@ -95,6 +95,21 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Replace <name> with the project identifier');
   });
 
+  it('strips inline HTML comments without leaving extra spaces', () => {
+    fx.write('STATE.md', '# Status <!-- TODO: refresh --> active');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Status active');
+  });
+
+  it('digs past a leading HTML comment line to the next real heading', () => {
+    fx.write(
+      'STATE.md',
+      '<!-- canonical: ~/dev/ai/prompts/foo.md -->\n# Real status\n',
+    );
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Real status');
+  });
+
   it('skips fenced code blocks when extracting summary', () => {
     fx.write(
       'STATE.md',

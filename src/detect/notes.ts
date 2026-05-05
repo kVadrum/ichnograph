@@ -31,6 +31,13 @@ const DIR_PATTERNS: Array<{ match: (n: string) => boolean; priority: number }> =
 
 function stripInlineMd(line: string): string {
   return line
+    // HTML comments first: a line that's nothing but `<!-- canonical: x -->`
+    // should collapse to empty so the caller's `length === 0` skip moves on
+    // to the next real line. Surrounding whitespace is consumed so mid-line
+    // comments don't leave double spaces behind. Only single-line comments
+    // are handled here; multi-line comment blocks at the top of a notes file
+    // would need line-spanning logic in firstMeaningfulLine to skip over.
+    .replace(/\s*<!--[\s\S]*?-->\s*/g, ' ')
     .replace(/`([^`]+)`/g, '$1')
     .replace(/\*\*([^*]+)\*\*/g, '$1')
     .replace(/\*([^*]+)\*/g, '$1')
