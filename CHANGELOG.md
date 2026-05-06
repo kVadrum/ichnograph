@@ -9,6 +9,16 @@ they will not break without a major-version bump.
 ## [Unreleased]
 ### Fixed
 - Inline-markdown stripping (used by both the readme summary and the
+  notes summaries) now strips a curated allowlist of common inline HTML
+  tags (`<a>`, `<b>`, `<br>`, `<p>`, `<img>`, `<sub>`, `<sup>`, `<kbd>`,
+  `<span>`, `<div>`, headings, table cells, and similar). Wrapped
+  content shines through (`<a href="x">tool</a>` → `tool`); a
+  `<p align="center"><b>Tool</b></p>` cluster used as a centered title
+  now collapses to `Tool`. Non-HTML placeholders (`<name>`,
+  `<your-token>`) are intentionally left alone — they're more often
+  literal in prose than tag-shaped, and the existing autolink rules
+  already covered the URL/email cases.
+- Inline-markdown stripping (used by both the readme summary and the
   notes summaries) now strips HTML comments (`<!-- ... -->`). A
   `STATE.md` whose first non-blank line is a canonical-home marker
   (`<!-- canonical: foo.md -->`) previously surfaced that comment as

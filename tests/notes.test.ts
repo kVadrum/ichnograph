@@ -95,6 +95,21 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Replace <name> with the project identifier');
   });
 
+  it('strips common inline HTML tags but keeps wrapped content', () => {
+    fx.write(
+      'STATE.md',
+      '# Status: <b>active</b> since <a href="https://x">v1.0</a>',
+    );
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Status: active since v1.0');
+  });
+
+  it('leaves non-HTML angle-bracketed placeholders alone', () => {
+    fx.write('STATE.md', '# Set <your-token> in <name>.env to enable');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Set <your-token> in <name>.env to enable');
+  });
+
   it('strips inline HTML comments without leaving extra spaces', () => {
     fx.write('STATE.md', '# Status <!-- TODO: refresh --> active');
     const notes = detectNotes(fx.path);

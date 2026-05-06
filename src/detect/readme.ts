@@ -54,6 +54,18 @@ function stripMd(line: string): string {
     // `<word>` literals in prose stay put because they match neither.
     .replace(/<([a-zA-Z][a-zA-Z0-9+.-]{1,31}:[^\s<>]+)>/g, '$1')
     .replace(/<([^\s<>@]+@[^\s<>@.]+(?:\.[^\s<>@.]+)+)>/g, '$1')
+    // Common inline HTML tags surfaced verbatim by READMEs / STATE files —
+    // <a href="x">text</a>, <br>, <p align="center">…</p>, <sub>, <kbd> —
+    // are stripped so wrapped content shines through. The allowlist (vs a
+    // generic `<\/?[a-zA-Z][a-zA-Z0-9-]*…>` pattern) keeps prose
+    // placeholders like `<name>` or `<your-token>` intact: they don't
+    // match any real HTML tag and are usually literal in this kind of
+    // text. Attributes are tolerated via `[^<>]*`; quoted `>` inside
+    // attributes is rare enough that a stricter parser isn't justified.
+    .replace(
+      /<\/?(?:a|abbr|b|br|cite|code|del|div|em|h[1-6]|hr|i|img|ins|kbd|li|mark|ol|p|pre|q|s|samp|small|span|strong|sub|sup|table|tbody|td|th|thead|tr|u|ul|var)\b[^<>]*\/?>/gi,
+      '',
+    )
     .trim();
 }
 

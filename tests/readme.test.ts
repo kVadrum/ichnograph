@@ -275,4 +275,45 @@ Replace <name> with the project identifier in your config.
       'Replace <name> with the project identifier in your config.',
     );
   });
+
+  it('strips common inline HTML tags but keeps wrapped content', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+A <a href="https://example.com">tool</a> for <b>fast</b> repo orientation.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe(
+      'A tool for fast repo orientation.',
+    );
+  });
+
+  it('strips a centered HTML title and surfaces wrapped prose', () => {
+    fx.write(
+      'README.md',
+      `<p align="center"><b>Tool</b></p>
+
+A short description that follows.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('Tool');
+    expect(r?.summary).toBe('A short description that follows.');
+  });
+
+  it('leaves non-HTML angle-bracketed placeholders alone', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+Configure <your-token> and pass <unknown-flag> on the command line.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe(
+      'Configure <your-token> and pass <unknown-flag> on the command line.',
+    );
+  });
 });
