@@ -25,3 +25,4 @@ Formats:
 2026-05-04 shipped 5015462 — "notes/readme: strip CommonMark autolink angle brackets" → sessions/2026-05-04.md
 2026-05-05 shipped 37a3d2d — "notes/readme: strip HTML comments from summaries" → sessions/2026-05-05.md
 2026-05-06 shipped c4cb768 — "notes/readme: strip common inline HTML tags from summaries" → sessions/2026-05-06.md
+2026-05-07 shipped 25a8d6c — "notes/readme: skip leading multi-line HTML comment blocks" → sessions/2026-05-07.md
