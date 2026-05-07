@@ -8,6 +8,15 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Fixed
+- Notes and readme detectors now skip leading multi-line HTML comment
+  blocks (a `<!--` that opens on one line and closes on a later one).
+  The per-line strip helper only collapses comments contained within
+  the string it sees, so a `<!--\nCopyright …\n-->` license header
+  ahead of the title — or a TOC sentinel block sitting between title
+  and paragraph — previously surfaced the literal `<!--` opener as
+  the summary or title. Pattern mirrors the existing fenced-code-block
+  skip: a block-at-start is digested away, a block mid-paragraph
+  terminates the paragraph.
 - Inline-markdown stripping (used by both the readme summary and the
   notes summaries) now strips a curated allowlist of common inline HTML
   tags (`<a>`, `<b>`, `<br>`, `<p>`, `<img>`, `<sub>`, `<sup>`, `<kbd>`,

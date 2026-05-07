@@ -262,6 +262,42 @@ keeps going across lines --> description.
     expect(r?.summary).toBe('A real description.');
   });
 
+  it('digs past a leading multi-line HTML comment block before the title', () => {
+    fx.write(
+      'README.md',
+      `<!--
+  Copyright (c) 2026 KeMeK Network
+  All rights reserved.
+-->
+# My Tool
+
+Real description here.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('My Tool');
+    expect(r?.summary).toBe('Real description here.');
+  });
+
+  it('digs past a multi-line HTML comment block sitting between title and paragraph', () => {
+    fx.write(
+      'README.md',
+      `# My Tool
+
+<!--
+  TOC
+  - Section 1
+  - Section 2
+-->
+
+Real description here.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('My Tool');
+    expect(r?.summary).toBe('Real description here.');
+  });
+
   it('leaves bare angle-bracketed words alone (not autolinks)', () => {
     fx.write(
       'README.md',

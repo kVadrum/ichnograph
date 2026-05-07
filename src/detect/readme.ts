@@ -94,6 +94,15 @@ export function detectReadme(root: string): ReadmeSection | null {
   for (; i < lines.length; i++) {
     const l = lines[i]?.trim() ?? '';
     if (!l) continue;
+    // Skip multi-line HTML comment blocks before the title. stripMd only
+    // collapses comments contained within the string it gets, so a leading
+    // `<!--\ncopyright\n-->` license header would otherwise be surfaced as
+    // the title. Single-line comments are still handled by stripMd below.
+    if (l.startsWith('<!--') && !l.includes('-->')) {
+      i++;
+      while (i < lines.length && !lines[i]?.includes('-->')) i++;
+      continue;
+    }
     const h1 = l.match(/^#\s+(.+)$/);
     if (h1) {
       title = stripMd(h1[1] ?? '');
@@ -115,6 +124,19 @@ export function detectReadme(root: string): ReadmeSection | null {
   for (; i < lines.length; i++) {
     const l = lines[i] ?? '';
     const trimmed = l.trim();
+
+    // Skip a leading multi-line HTML comment block (e.g. a TOC sentinel or
+    // a copyright header sitting between the title and the real prose).
+    // Mirrors the fence pattern below: skip past it only at paragraph start,
+    // terminate the paragraph if one's already underway. Comments that open
+    // and close on the same line are handled by stripMd.
+    if (trimmed.startsWith('<!--') && !trimmed.includes('-->')) {
+      if (paraLines.length > 0) break;
+      i++;
+      while (i < lines.length && !lines[i]?.includes('-->')) i++;
+      while (i + 1 < lines.length && !(lines[i + 1]?.trim())) i++;
+      continue;
+    }
 
     // Skip a leading fenced code block: READMEs sometimes lead with a
     // usage/install snippet before the description, and surfacing the

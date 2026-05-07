@@ -125,6 +125,15 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Real status');
   });
 
+  it('digs past a leading multi-line HTML comment block', () => {
+    fx.write(
+      'STATE.md',
+      '<!--\n  Copyright (c) 2026 KeMeK Network\n  All rights reserved.\n-->\n# Real status\n',
+    );
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Real status');
+  });
+
   it('skips fenced code blocks when extracting summary', () => {
     fx.write(
       'STATE.md',

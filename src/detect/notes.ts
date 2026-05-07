@@ -94,6 +94,16 @@ function firstMeaningfulLine(path: string): string | null {
   for (; i < lines.length; i++) {
     const l = lines[i]?.trim() ?? '';
     if (!l) continue;
+    // Skip multi-line HTML comment blocks. stripInlineMd only collapses
+    // comments that open and close on the same line, so a leading
+    // `<!--\ncopyright\n-->` header would otherwise surface `<!--` as
+    // the summary. Single-line comments are handled by stripInlineMd
+    // below; this branch only catches the unclosed-on-this-line case.
+    if (l.startsWith('<!--') && !l.includes('-->')) {
+      i++;
+      while (i < lines.length && !lines[i]?.includes('-->')) i++;
+      continue;
+    }
     // Skip fenced code blocks: the opening fence isn't meaningful prose, and
     // surfacing "```" or "```ts" as the summary is worse than digging past
     // it to the next real line.
