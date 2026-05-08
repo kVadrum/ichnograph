@@ -149,6 +149,50 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Actual summary');
   });
 
+  it('strips list marker and GFM task checkbox from a leading bullet', () => {
+    fx.write('TODO.md', '- [ ] Wire up the auth flow\n- [x] Done thing\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Wire up the auth flow');
+  });
+
+  it('strips a plain list marker (no checkbox) from a leading bullet', () => {
+    fx.write('STATE.md', '- branch: dev shipping Tuesday\n- next: review\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('branch: dev shipping Tuesday');
+  });
+
+  it('strips asterisk and plus list markers', () => {
+    fx.write('STATE.md', '* feature complete\n');
+    fx.write('TODO.md', '+ ship the patch\n');
+    const notes = detectNotes(fx.path);
+    expect(notes.find((n) => n.name === 'STATE.md')?.summary).toBe('feature complete');
+    expect(notes.find((n) => n.name === 'TODO.md')?.summary).toBe('ship the patch');
+  });
+
+  it('strips ordered-list markers', () => {
+    fx.write('TODO.md', '1. First task on the list\n2. second\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('First task on the list');
+  });
+
+  it('handles a checked task with capital X', () => {
+    fx.write('TODO.md', '- [X] Already shipped this one\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Already shipped this one');
+  });
+
+  it('leaves bracketed shortcuts after a list marker alone', () => {
+    fx.write('STATE.md', '- [draft] notes pending review\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('[draft] notes pending review');
+  });
+
+  it('does not treat a hyphen with no trailing space as a list marker', () => {
+    fx.write('STATE.md', '-not-a-list because no space follows\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('-not-a-list because no space follows');
+  });
+
   it('matches numbered spec files', () => {
     fx.write('00-overview.md', '# Overview');
     fx.write('01-architecture.md', '# Architecture');

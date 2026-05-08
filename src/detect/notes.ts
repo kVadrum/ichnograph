@@ -115,7 +115,20 @@ function firstMeaningfulLine(path: string): string | null {
       continue;
     }
     const h = l.match(/^#{1,6}\s+(.+)$/);
-    const text = stripInlineMd((h ? h[1] : l) ?? '');
+    // List items: TODO.md / STATE.md commonly lead with `- [ ] do thing`
+    // or `- branch: dev` instead of a heading. Strip the leading marker
+    // (and optional GFM task checkbox) so the summary is the content,
+    // not the bullet. CommonMark requires whitespace after the marker,
+    // so prose tokens like `-foo` aren't matched. The checkbox group is
+    // restricted to `[ ]` / `[x]` / `[X]` so literal bracketed shortcuts
+    // (`- [draft] note`) survive — same reasoning as reference-link
+    // shortcuts being left alone in stripInlineMd.
+    let body = h ? (h[1] ?? '') : l;
+    if (!h) {
+      const li = l.match(/^(?:[-*+]|\d+\.)\s+(?:\[[ xX]\]\s+)?(.+)$/);
+      if (li) body = li[1] ?? '';
+    }
+    const text = stripInlineMd(body);
     if (text.length === 0) continue;
     return text.length > 80 ? text.slice(0, 77) + '…' : text;
   }

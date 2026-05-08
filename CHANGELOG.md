@@ -8,6 +8,16 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Fixed
+- Notes detector now strips a leading list marker (and optional GFM task
+  checkbox) when extracting the one-line summary. A `TODO.md` whose first
+  line is `- [ ] Wire up auth` previously surfaced the bullet and
+  checkbox verbatim; it now collapses to `Wire up auth`. Bullet markers
+  (`-`, `*`, `+`) and ordered markers (`1.`) are recognized; the
+  checkbox group is restricted to `[ ]` / `[x]` / `[X]` so literal
+  bracketed shortcuts like `- [draft] notes` survive — same reasoning
+  as reference-link shortcuts being left alone in stripInlineMd. The
+  marker requires trailing whitespace per CommonMark, so prose tokens
+  like `-foo` aren't mis-classified.
 - Notes and readme detectors now skip leading multi-line HTML comment
   blocks (a `<!--` that opens on one line and closes on a later one).
   The per-line strip helper only collapses comments contained within
