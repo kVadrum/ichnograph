@@ -27,3 +27,4 @@ Formats:
 2026-05-06 shipped c4cb768 — "notes/readme: strip common inline HTML tags from summaries" → sessions/2026-05-06.md
 2026-05-07 shipped 25a8d6c — "notes/readme: skip leading multi-line HTML comment blocks" → sessions/2026-05-07.md
 2026-05-08 shipped 643b0f6 — "notes: strip list marker and GFM task checkbox from summaries" → sessions/2026-05-08.md
+2026-05-09 shipped 32d0de5 — "notes/readme: strip optional closing # sequence from ATX headings" → sessions/2026-05-09.md
