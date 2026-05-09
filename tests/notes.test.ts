@@ -187,6 +187,24 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('[draft] notes pending review');
   });
 
+  it('strips an optional closing # sequence from ATX headings', () => {
+    fx.write('STATE.md', '## Status ##\n\nbody');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Status');
+  });
+
+  it('keeps trailing # literal when not preceded by whitespace', () => {
+    fx.write('STATE.md', '# foo#\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('foo#');
+  });
+
+  it('strips a longer closing # run with trailing whitespace', () => {
+    fx.write('STATE.md', '### Build pipeline ###   \n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Build pipeline');
+  });
+
   it('does not treat a hyphen with no trailing space as a list marker', () => {
     fx.write('STATE.md', '-not-a-list because no space follows\n');
     const notes = detectNotes(fx.path);

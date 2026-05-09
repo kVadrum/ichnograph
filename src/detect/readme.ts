@@ -105,7 +105,12 @@ export function detectReadme(root: string): ReadmeSection | null {
     }
     const h1 = l.match(/^#\s+(.+)$/);
     if (h1) {
-      title = stripMd(h1[1] ?? '');
+      // Strip CommonMark's optional closing `#` sequence (preceded by
+      // whitespace): `# My Tool #` is a heading whose content is `My Tool`,
+      // not `My Tool #`. `# foo#` stays literal — no separating space means
+      // the trailing `#` is content per spec §4.2.
+      const body = (h1[1] ?? '').replace(/\s+#+\s*$/, '');
+      title = stripMd(body);
       i++;
       break;
     }

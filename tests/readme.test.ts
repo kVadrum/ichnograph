@@ -104,6 +104,19 @@ A tool that does X.
     expect(r?.summary).toBe('A tool that does X.');
   });
 
+  it('strips an optional closing # sequence from the H1 title', () => {
+    fx.write('README.md', '# My Tool #\n\nA tool that does X.\n');
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('My Tool');
+    expect(r?.summary).toBe('A tool that does X.');
+  });
+
+  it('keeps a trailing # in the title literal when no whitespace separates it', () => {
+    fx.write('README.md', '# foo#\n\nDescription.\n');
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('foo#');
+  });
+
   it('skips tilde-fenced code blocks too', () => {
     fx.write(
       'README.md',

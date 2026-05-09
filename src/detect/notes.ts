@@ -77,6 +77,14 @@ function stripInlineMd(line: string): string {
     .trim();
 }
 
+// CommonMark allows an optional closing `#` sequence preceded by whitespace:
+// `## Status ##` is a heading whose content is `Status`, not `Status ##`.
+// The whitespace requirement keeps `# foo#` literal — no separating space
+// means the trailing `#` is content per spec.
+function stripClosingHashes(s: string): string {
+  return s.replace(/\s+#+\s*$/, '');
+}
+
 function firstMeaningfulLine(path: string): string | null {
   let raw: string;
   try {
@@ -123,7 +131,7 @@ function firstMeaningfulLine(path: string): string | null {
     // restricted to `[ ]` / `[x]` / `[X]` so literal bracketed shortcuts
     // (`- [draft] note`) survive — same reasoning as reference-link
     // shortcuts being left alone in stripInlineMd.
-    let body = h ? (h[1] ?? '') : l;
+    let body = h ? stripClosingHashes(h[1] ?? '') : l;
     if (!h) {
       const li = l.match(/^(?:[-*+]|\d+\.)\s+(?:\[[ xX]\]\s+)?(.+)$/);
       if (li) body = li[1] ?? '';

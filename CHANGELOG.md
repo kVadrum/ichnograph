@@ -8,6 +8,12 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Fixed
+- Notes and readme detectors now strip CommonMark's optional closing `#`
+  sequence from ATX headings. `## Status ##` is a heading whose content
+  is `Status` per spec §4.2; previously the trailing run surfaced
+  verbatim as `Status ##`. The strip requires whitespace before the
+  closing run, so `# foo#` (no separating space) stays literal as
+  intended — the trailing `#` there is content, not a marker.
 - Notes detector now strips a leading list marker (and optional GFM task
   checkbox) when extracting the one-line summary. A `TODO.md` whose first
   line is `- [ ] Wire up auth` previously surfaced the bullet and
