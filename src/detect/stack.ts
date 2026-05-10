@@ -61,6 +61,36 @@ function detectJsFrameworks(pkg: Record<string, unknown>): string[] {
   return hits;
 }
 
+const PHP_FRAMEWORK_MAP: Array<[string, string]> = [
+  ['laravel/framework', 'Laravel'],
+  ['symfony/framework-bundle', 'Symfony'],
+  ['symfony/symfony', 'Symfony'],
+  ['cakephp/cakephp', 'CakePHP'],
+  ['yiisoft/yii2', 'Yii'],
+  ['codeigniter4/framework', 'CodeIgniter'],
+  ['slim/slim', 'Slim'],
+  ['laminas/laminas-mvc', 'Laminas'],
+  ['drupal/core', 'Drupal'],
+  ['statamic/cms', 'Statamic'],
+  ['filament/filament', 'Filament'],
+  ['livewire/livewire', 'Livewire'],
+  ['inertiajs/inertia-laravel', 'Inertia'],
+  ['phpunit/phpunit', 'PHPUnit'],
+  ['pestphp/pest', 'Pest'],
+];
+
+function detectPhpFrameworks(pkg: Record<string, unknown>): string[] {
+  const deps: Record<string, unknown> = {
+    ...((pkg.require as Record<string, unknown>) ?? {}),
+    ...((pkg['require-dev'] as Record<string, unknown>) ?? {}),
+  };
+  const hits: string[] = [];
+  for (const [dep, label] of PHP_FRAMEWORK_MAP) {
+    if (dep in deps && !hits.includes(label)) hits.push(label);
+  }
+  return hits;
+}
+
 function detectPyFrameworks(text: string): string[] {
   const hits: string[] = [];
   const hay = text.toLowerCase();
@@ -212,8 +242,8 @@ export function detectStack(root: string): StackHit[] {
       language: 'PHP',
       manifest: 'composer.json',
       name: stringOrNull(pkg?.name),
-      version: null,
-      frameworks: [],
+      version: stringOrNull(pkg?.version),
+      frameworks: pkg ? detectPhpFrameworks(pkg) : [],
     });
   }
 

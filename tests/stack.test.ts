@@ -73,6 +73,27 @@ dependencies = ["fastapi", "pydantic"]
     expect(stacks[0]?.frameworks).toContain('Pydantic');
   });
 
+  it('parses composer.json name, version, and frameworks', () => {
+    fx.write(
+      'composer.json',
+      JSON.stringify({
+        name: 'acme/site',
+        version: '1.4.2',
+        require: { 'laravel/framework': '^11.0', 'livewire/livewire': '^3.0' },
+        'require-dev': { 'pestphp/pest': '^2.0' },
+      }),
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'PHP',
+      name: 'acme/site',
+      version: '1.4.2',
+    });
+    expect(stacks[0]?.frameworks).toContain('Laravel');
+    expect(stacks[0]?.frameworks).toContain('Livewire');
+    expect(stacks[0]?.frameworks).toContain('Pest');
+  });
+
   it('reads Go module name from go.mod', () => {
     fx.write('go.mod', 'module github.com/example/thing\n\ngo 1.22\n');
     const stacks = detectStack(fx.path);

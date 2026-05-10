@@ -7,6 +7,14 @@ As of v0.2.0, the text and `--json` output are considered stable —
 they will not break without a major-version bump.
 
 ## [Unreleased]
+### Added
+- Stack detector now surfaces PHP frameworks from `composer.json`
+  (`require` + `require-dev`): Laravel, Symfony, CakePHP, Yii,
+  CodeIgniter, Slim, Laminas, Drupal, Statamic, Filament, Livewire,
+  Inertia, PHPUnit, Pest. Composer's `version` field is also read now;
+  it was previously hard-coded to `null`. Brings PHP to parity with the
+  JS and Python framework detection paths.
+
 ### Fixed
 - Notes and readme detectors now strip CommonMark's optional closing `#`
   sequence from ATX headings. `## Status ##` is a heading whose content
