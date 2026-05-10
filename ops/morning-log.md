@@ -28,3 +28,4 @@ Formats:
 2026-05-07 shipped 25a8d6c — "notes/readme: skip leading multi-line HTML comment blocks" → sessions/2026-05-07.md
 2026-05-08 shipped 643b0f6 — "notes: strip list marker and GFM task checkbox from summaries" → sessions/2026-05-08.md
 2026-05-09 shipped 32d0de5 — "notes/readme: strip optional closing # sequence from ATX headings" → sessions/2026-05-09.md
+2026-05-10 shipped 3b888a0 — "stack: detect PHP frameworks and version in composer.json" → sessions/2026-05-10.md
