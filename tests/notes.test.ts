@@ -110,6 +110,20 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Set <your-token> in <name>.env to enable');
   });
 
+  it('strips GFM footnote references but leaves definitions alone', () => {
+    fx.write('STATE.md', '# Status active[^1] since v1.0\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Status active since v1.0');
+  });
+
+  it('keeps a footnote definition line intact (colon after label)', () => {
+    fx.write('STATE.md', '[^1]: This is the footnote definition body\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe(
+      '[^1]: This is the footnote definition body',
+    );
+  });
+
   it('strips inline HTML comments without leaving extra spaces', () => {
     fx.write('STATE.md', '# Status <!-- TODO: refresh --> active');
     const notes = detectNotes(fx.path);

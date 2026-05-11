@@ -250,6 +250,18 @@ Visit <https://example.com> or email <ops@example.com> for support.
     );
   });
 
+  it('strips GFM footnote references from the summary', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+A small tool[^1] for orienting in repos[^api-note].
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('A small tool for orienting in repos.');
+  });
+
   it('strips inline HTML comments from the summary', () => {
     fx.write(
       'README.md',

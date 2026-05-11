@@ -56,6 +56,11 @@ function stripInlineMd(line: string): string {
     // is intentionally not stripped — bare brackets in prose are too
     // often literal (e.g. `[draft]`, `[WIP]`) to safely collapse.
     .replace(/\[([^\]]+)\]\[[^\]]*\]/g, '$1')
+    // GFM footnote references: `[^1]`, `[^api-note]` → drop. The
+    // negative lookahead for `:` keeps definition lines (`[^1]: …`)
+    // intact so a leading footnote def isn't mangled into `: text`.
+    // Labels disallow whitespace and `]` per the GFM spec.
+    .replace(/\[\^[^\]\s]+\](?!:)/g, '')
     // CommonMark autolinks: <https://x>, <mailto:a@b>, <a@b.com> → drop
     // the angle brackets. The URI form requires a scheme (letter then
     // alphanum/+.-); the email form requires `user@host.tld`. Bare

@@ -16,6 +16,16 @@ they will not break without a major-version bump.
   JS and Python framework detection paths.
 
 ### Fixed
+- Notes and readme detectors now strip GFM footnote references
+  (`[^1]`, `[^api-note]`) from the one-line summary. A README sentence
+  like `A small tool[^1] for orienting in repos.` previously surfaced
+  with the footnote marker intact; it now collapses to
+  `A small tool for orienting in repos.`. The strip is restricted by a
+  negative lookahead for `:` so a leading footnote definition line
+  (`[^1]: …`) stays literal rather than being mangled into
+  `: …` — definitions aren't refs and shouldn't be eaten by the same
+  pass. Labels disallow whitespace and `]` per the GFM spec, matching
+  what the parser would accept as a real reference.
 - Notes and readme detectors now strip CommonMark's optional closing `#`
   sequence from ATX headings. `## Status ##` is a heading whose content
   is `Status` per spec §4.2; previously the trailing run surfaced
