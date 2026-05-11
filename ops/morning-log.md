@@ -29,3 +29,4 @@ Formats:
 2026-05-08 shipped 643b0f6 — "notes: strip list marker and GFM task checkbox from summaries" → sessions/2026-05-08.md
 2026-05-09 shipped 32d0de5 — "notes/readme: strip optional closing # sequence from ATX headings" → sessions/2026-05-09.md
 2026-05-10 shipped 3b888a0 — "stack: detect PHP frameworks and version in composer.json" → sessions/2026-05-10.md
+2026-05-11 shipped a76c81f — "notes/readme: strip GFM footnote references from summaries" → sessions/2026-05-11.md
