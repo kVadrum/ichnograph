@@ -16,6 +16,17 @@ they will not break without a major-version bump.
   JS and Python framework detection paths.
 
 ### Fixed
+- Notes and readme detectors now strip leading blockquote markers
+  (`>`, `>>`) from the one-line summary. A `STATE.md` whose first line
+  is `> Status: active` previously surfaced `> Status: active` verbatim;
+  it now collapses to `Status: active`. CommonMark §5.1 makes the space
+  after `>` optional (`>foo` works) and allows nesting (`>> reply`); the
+  regex handles both. The marker is structure, not content — same
+  reasoning as list markers being stripped. In the readme path, each
+  line of a multi-line blockquote is dequoted before paragraph join, so
+  a two-line `>` block collapses to a single coherent sentence; a line
+  that's nothing but `>` (empty blockquote) terminates the paragraph,
+  matching the empty-line terminator already in place.
 - Notes and readme detectors now strip GFM footnote references
   (`[^1]`, `[^api-note]`) from the one-line summary. A README sentence
   like `A small tool[^1] for orienting in repos.` previously surfaced

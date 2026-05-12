@@ -167,7 +167,15 @@ export function detectReadme(root: string): ReadmeSection | null {
     if (!trimmed) break;
     if (trimmed.startsWith('#')) break;
     if (/^[-=]{3,}$/.test(trimmed)) break;
-    paraLines.push(trimmed);
+    // Blockquote markers: a README sometimes leads with `> a short tagline`
+    // or wraps the description in a quote block. CommonMark §5.1 allows the
+    // space after `>` to be omitted (`>foo`) and supports nesting (`>>`).
+    // Strip the marker(s) per-line so quoted prose surfaces. A line that's
+    // nothing but `>` (empty blockquote) terminates the paragraph, matching
+    // the empty-line terminator above.
+    const dequoted = trimmed.replace(/^>+\s?/, '');
+    if (!dequoted) break;
+    paraLines.push(dequoted);
   }
 
   const summary = paraLines.length > 0 ? stripMd(paraLines.join(' ')) : null;

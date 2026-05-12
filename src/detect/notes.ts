@@ -138,8 +138,18 @@ function firstMeaningfulLine(path: string): string | null {
     // shortcuts being left alone in stripInlineMd.
     let body = h ? stripClosingHashes(h[1] ?? '') : l;
     if (!h) {
-      const li = l.match(/^(?:[-*+]|\d+\.)\s+(?:\[[ xX]\]\s+)?(.+)$/);
-      if (li) body = li[1] ?? '';
+      // Blockquote markers: STATE.md / TODO.md sometimes lead with
+      // `> note text` instead of a heading or bullet. CommonMark §5.1
+      // makes the space after `>` optional (`>foo`) and allows nesting
+      // (`>> reply`). Strip the marker(s) so the quoted body surfaces
+      // as the summary — same reasoning as list markers being stripped:
+      // the marker is structure, not content.
+      const bq = l.match(/^>+\s*(.+)$/);
+      if (bq) body = bq[1] ?? '';
+      else {
+        const li = l.match(/^(?:[-*+]|\d+\.)\s+(?:\[[ xX]\]\s+)?(.+)$/);
+        if (li) body = li[1] ?? '';
+      }
     }
     const text = stripInlineMd(body);
     if (text.length === 0) continue;

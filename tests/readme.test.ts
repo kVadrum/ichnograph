@@ -377,4 +377,55 @@ Configure <your-token> and pass <unknown-flag> on the command line.
       'Configure <your-token> and pass <unknown-flag> on the command line.',
     );
   });
+
+  it('strips a leading blockquote marker from the summary paragraph', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+> A small CLI for orienting in repos.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('A small CLI for orienting in repos.');
+  });
+
+  it('joins multi-line blockquote summary, stripping the marker per line', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+> A small CLI for orienting in repos.
+> Designed for one-screen output.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe(
+      'A small CLI for orienting in repos. Designed for one-screen output.',
+    );
+  });
+
+  it('strips nested blockquote markers (>>)', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+>> Deeply quoted description text.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('Deeply quoted description text.');
+  });
+
+  it('handles a blockquote with no space after > (>foo)', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+>tightly packed quote line.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('tightly packed quote line.');
+  });
 });

@@ -219,6 +219,30 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('Build pipeline');
   });
 
+  it('strips a leading blockquote marker', () => {
+    fx.write('STATE.md', '> Status: active and shipping\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Status: active and shipping');
+  });
+
+  it('strips a blockquote marker with no following space (>foo)', () => {
+    fx.write('STATE.md', '>foo bar baz\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('foo bar baz');
+  });
+
+  it('strips nested blockquote markers (>>)', () => {
+    fx.write('STATE.md', '>> deeply quoted summary text\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('deeply quoted summary text');
+  });
+
+  it('strips inline markdown inside a blockquote body', () => {
+    fx.write('STATE.md', '> **Status**: `active`\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Status: active');
+  });
+
   it('does not treat a hyphen with no trailing space as a list marker', () => {
     fx.write('STATE.md', '-not-a-list because no space follows\n');
     const notes = detectNotes(fx.path);
