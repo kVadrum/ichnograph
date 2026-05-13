@@ -29,8 +29,40 @@ const DIR_PATTERNS: Array<{ match: (n: string) => boolean; priority: number }> =
   { match: (n) => /^docs?$/i.test(n), priority: 9 },
 ];
 
+// HTML entities surfaced verbatim by READMEs / STATE files — `AT&amp;T`,
+// `Don&#39;t`, `caf&eacute;`. Decoded after tag-stripping so that an
+// encoded-but-literal `&lt;b&gt;tag&lt;/b&gt;` in source survives the tag
+// pass and then collapses to the intended `<b>tag</b>` (rather than being
+// decoded first and then eaten by the tag stripper). The named set is a
+// curated allowlist of common entities; unknown names like `&foo;` stay
+// literal rather than guessed at. `nbsp` decodes to a regular space so
+// the surrounding `.trim()` and downstream consumers don't see a U+00A0
+// boundary char.
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  copy: '©', reg: '®', trade: '™',
+  hellip: '…', mdash: '—', ndash: '–',
+  laquo: '«', raquo: '»', middot: '·', bull: '•',
+  lsquo: '‘', rsquo: '’', ldquo: '“', rdquo: '”',
+};
+
+function decodeEntities(s: string): string {
+  return s.replace(
+    /&(?:([a-zA-Z][a-zA-Z0-9]{1,15})|#(\d{1,7})|#[xX]([0-9a-fA-F]{1,6}));/g,
+    (m, name, dec, hex) => {
+      if (name) return NAMED_ENTITIES[name] ?? m;
+      const cp = dec ? parseInt(dec, 10) : parseInt(hex, 16);
+      // Reject NUL, surrogates, and out-of-range — keeps the source literal
+      // intact rather than emitting an invalid or surprising codepoint.
+      if (!Number.isFinite(cp) || cp <= 0 || cp > 0x10ffff) return m;
+      if (cp >= 0xd800 && cp <= 0xdfff) return m;
+      return String.fromCodePoint(cp);
+    },
+  );
+}
+
 function stripInlineMd(line: string): string {
-  return line
+  const stripped = line
     // HTML comments first: a line that's nothing but `<!-- canonical: x -->`
     // should collapse to empty so the caller's `length === 0` skip moves on
     // to the next real line. Surrounding whitespace is consumed so mid-line
@@ -78,8 +110,12 @@ function stripInlineMd(line: string): string {
     .replace(
       /<\/?(?:a|abbr|b|br|cite|code|del|div|em|h[1-6]|hr|i|img|ins|kbd|li|mark|ol|p|pre|q|s|samp|small|span|strong|sub|sup|table|tbody|td|th|thead|tr|u|ul|var)\b[^<>]*\/?>/gi,
       '',
-    )
-    .trim();
+    );
+  // Decode entities last so that an encoded literal `&lt;b&gt;` survives the
+  // tag-stripper above (it sees only the literal `&lt;` chars, not a tag) and
+  // then collapses to `<b>` here as the author intended. Final `.trim()`
+  // catches any boundary whitespace introduced by `&nbsp;`.
+  return decodeEntities(stripped).trim();
 }
 
 // CommonMark allows an optional closing `#` sequence preceded by whitespace:

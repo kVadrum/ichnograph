@@ -428,4 +428,62 @@ Configure <your-token> and pass <unknown-flag> on the command line.
     const r = detectReadme(fx.path);
     expect(r?.summary).toBe('tightly packed quote line.');
   });
+
+  it('decodes named HTML entities in title and summary', () => {
+    fx.write(
+      'README.md',
+      `# AT&amp;T Toolkit
+
+A &quot;batteries-included&quot; CLI for Don&apos;t-repeat-yourself work.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe('AT&T Toolkit');
+    expect(r?.summary).toBe(
+      'A "batteries-included" CLI for Don\'t-repeat-yourself work.',
+    );
+  });
+
+  it('decodes decimal and hex numeric HTML entities', () => {
+    fx.write(
+      'README.md',
+      `# Don&#39;t Panic
+
+A guide &#x2014; in 42 chapters.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.title).toBe("Don't Panic");
+    expect(r?.summary).toBe('A guide — in 42 chapters.');
+  });
+
+  it('leaves unknown named entities literal', () => {
+    fx.write('README.md', '# Tool\n\nUse &foo; as a sentinel.\n');
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('Use &foo; as a sentinel.');
+  });
+
+  it('decodes entities AFTER tag-strip so &lt;b&gt; survives as literal', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+Wrap with &lt;b&gt;bold&lt;/b&gt; to emphasize.
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('Wrap with <b>bold</b> to emphasize.');
+  });
+
+  it('decodes &amp; once and leaves &amp;lt; as &lt;', () => {
+    fx.write('README.md', '# Tool\n\nEscaped: &amp;lt; literal.\n');
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('Escaped: &lt; literal.');
+  });
+
+  it('decodes &nbsp; to a regular space and trims summary boundaries', () => {
+    fx.write('README.md', '# Tool\n\n&nbsp;Padded summary text&nbsp;\n');
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('Padded summary text');
+  });
 });

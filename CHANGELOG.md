@@ -16,6 +16,20 @@ they will not break without a major-version bump.
   JS and Python framework detection paths.
 
 ### Fixed
+- Notes and readme detectors now decode HTML entities (named `&amp;`,
+  `&lt;`, `&gt;`, `&quot;`, `&apos;`, `&nbsp;`, `&copy;`, `&mdash;`,
+  `&hellip;`, smart quotes, and similar; numeric `&#39;` / `&#x2014;`)
+  in the one-line summary. A README title like `AT&amp;T Toolkit`
+  previously surfaced with the literal entity; it now collapses to
+  `AT&T Toolkit`. Decoding runs *after* the HTML-tag strip so an
+  encoded literal `&lt;b&gt;bold&lt;/b&gt;` survives the tag pass and
+  emerges as `<b>bold</b>` rather than being eaten. `&amp;` is decoded
+  in a single pass, so `&amp;lt;` produces `&lt;` (not `<`), matching
+  HTML5 spec behavior. Unknown names like `&foo;` stay literal —
+  guessing at sentinel-shaped tokens is worse than leaving them
+  alone. `&nbsp;` decodes to a regular space so the final `.trim()`
+  consumes it cleanly at summary boundaries. Surrogate-range numeric
+  entities (`&#xD800;`) are rejected and stay literal.
 - Notes and readme detectors now strip leading blockquote markers
   (`>`, `>>`) from the one-line summary. A `STATE.md` whose first line
   is `> Status: active` previously surfaced `> Status: active` verbatim;

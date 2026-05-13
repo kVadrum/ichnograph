@@ -249,6 +249,48 @@ describe('detectNotes', () => {
     expect(notes[0]?.summary).toBe('-not-a-list because no space follows');
   });
 
+  it('decodes named HTML entities (&amp; &quot; &apos;)', () => {
+    fx.write('STATE.md', '# AT&amp;T and &quot;Don&apos;t Panic&quot;\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('AT&T and "Don\'t Panic"');
+  });
+
+  it('decodes decimal and hex numeric HTML entities', () => {
+    fx.write('STATE.md', '# Don&#39;t panic &#x2014; carry on\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe("Don't panic — carry on");
+  });
+
+  it('leaves unknown named entities literal', () => {
+    fx.write('STATE.md', '# Use &foo; as a sentinel value\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Use &foo; as a sentinel value');
+  });
+
+  it('decodes &nbsp; to a regular space and trims', () => {
+    fx.write('STATE.md', '# &nbsp;Status active&nbsp;\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Status active');
+  });
+
+  it('decodes entities AFTER tag-strip so &lt;b&gt; survives as literal', () => {
+    fx.write('STATE.md', '# Use &lt;b&gt;bold&lt;/b&gt; in the prompt\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Use <b>bold</b> in the prompt');
+  });
+
+  it('decodes &amp; once and leaves &amp;lt; as &lt;', () => {
+    fx.write('STATE.md', '# Escaped: &amp;lt; literal\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Escaped: &lt; literal');
+  });
+
+  it('rejects surrogate-range numeric entities', () => {
+    fx.write('STATE.md', '# Invalid &#xD800; codepoint stays literal\n');
+    const notes = detectNotes(fx.path);
+    expect(notes[0]?.summary).toBe('Invalid &#xD800; codepoint stays literal');
+  });
+
   it('matches numbered spec files', () => {
     fx.write('00-overview.md', '# Overview');
     fx.write('01-architecture.md', '# Architecture');

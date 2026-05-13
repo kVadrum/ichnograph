@@ -22,8 +22,35 @@ function findReadme(root: string): string | null {
   return null;
 }
 
+// HTML entities surfaced verbatim by READMEs — `AT&amp;T`, `Don&#39;t`,
+// `caf&eacute;`. Decoded after tag-stripping so an encoded-but-literal
+// `&lt;b&gt;tag&lt;/b&gt;` survives the tag pass and collapses here. Named
+// set is a curated allowlist; unknown names like `&foo;` stay literal.
+// `nbsp` decodes to a regular space so `.trim()` and downstream consumers
+// don't see a U+00A0 boundary char.
+const NAMED_ENTITIES: Record<string, string> = {
+  amp: '&', lt: '<', gt: '>', quot: '"', apos: "'", nbsp: ' ',
+  copy: '©', reg: '®', trade: '™',
+  hellip: '…', mdash: '—', ndash: '–',
+  laquo: '«', raquo: '»', middot: '·', bull: '•',
+  lsquo: '‘', rsquo: '’', ldquo: '“', rdquo: '”',
+};
+
+function decodeEntities(s: string): string {
+  return s.replace(
+    /&(?:([a-zA-Z][a-zA-Z0-9]{1,15})|#(\d{1,7})|#[xX]([0-9a-fA-F]{1,6}));/g,
+    (m, name, dec, hex) => {
+      if (name) return NAMED_ENTITIES[name] ?? m;
+      const cp = dec ? parseInt(dec, 10) : parseInt(hex, 16);
+      if (!Number.isFinite(cp) || cp <= 0 || cp > 0x10ffff) return m;
+      if (cp >= 0xd800 && cp <= 0xdfff) return m;
+      return String.fromCodePoint(cp);
+    },
+  );
+}
+
 function stripMd(line: string): string {
-  return line
+  const stripped = line
     // HTML comments first: a `<!-- canonical: x -->` marker (or a TOC sentinel
     // like `<!-- toc -->`) at the start of a paragraph would otherwise surface
     // as part of the summary. Surrounding whitespace is consumed so a mid-line
@@ -70,8 +97,11 @@ function stripMd(line: string): string {
     .replace(
       /<\/?(?:a|abbr|b|br|cite|code|del|div|em|h[1-6]|hr|i|img|ins|kbd|li|mark|ol|p|pre|q|s|samp|small|span|strong|sub|sup|table|tbody|td|th|thead|tr|u|ul|var)\b[^<>]*\/?>/gi,
       '',
-    )
-    .trim();
+    );
+  // Decode entities last so an encoded literal `&lt;b&gt;` survives the
+  // tag-stripper above and collapses here as the author intended. Final
+  // `.trim()` catches boundary whitespace from `&nbsp;`.
+  return decodeEntities(stripped).trim();
 }
 
 function stripFrontmatter(text: string): string {
