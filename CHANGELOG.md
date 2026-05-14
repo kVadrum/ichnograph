@@ -16,6 +16,16 @@ they will not break without a major-version bump.
   JS and Python framework detection paths.
 
 ### Fixed
+- Inline-markdown stripping (used by both the readme summary and the
+  notes summaries) now strips `<details>`, `<summary>`, `<figure>`, and
+  `<figcaption>` tags. A GitHub-flavored README that wraps its
+  description in a disclosure block (`<details><summary>What is this?
+  </summary>…</details>`) previously surfaced the literal tags in the
+  summary; the wrapped content now shines through the same way `<a>`
+  or `<b>` already did. Same allowlist rationale: these are
+  unambiguously HTML constructs in README/STATE prose — `summary` and
+  `details` as bare placeholders (`<summary>`) are vanishingly rare
+  compared to the disclosure-widget usage.
 - Notes and readme detectors now decode HTML entities (named `&amp;`,
   `&lt;`, `&gt;`, `&quot;`, `&apos;`, `&nbsp;`, `&copy;`, `&mdash;`,
   `&hellip;`, smart quotes, and similar; numeric `&#39;` / `&#x2014;`)

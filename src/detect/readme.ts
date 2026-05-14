@@ -95,7 +95,7 @@ function stripMd(line: string): string {
     // text. Attributes are tolerated via `[^<>]*`; quoted `>` inside
     // attributes is rare enough that a stricter parser isn't justified.
     .replace(
-      /<\/?(?:a|abbr|b|br|cite|code|del|div|em|h[1-6]|hr|i|img|ins|kbd|li|mark|ol|p|pre|q|s|samp|small|span|strong|sub|sup|table|tbody|td|th|thead|tr|u|ul|var)\b[^<>]*\/?>/gi,
+      /<\/?(?:a|abbr|b|br|cite|code|del|details|div|em|figcaption|figure|h[1-6]|hr|i|img|ins|kbd|li|mark|ol|p|pre|q|s|samp|small|span|strong|sub|summary|sup|table|tbody|td|th|thead|tr|u|ul|var)\b[^<>]*\/?>/gi,
       '',
     );
   // Decode entities last so an encoded literal `&lt;b&gt;` survives the

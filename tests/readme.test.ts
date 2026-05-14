@@ -351,6 +351,33 @@ A <a href="https://example.com">tool</a> for <b>fast</b> repo orientation.
     );
   });
 
+  it('strips <details>/<summary> wrappers so the disclosure content shines through', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+<details>
+<summary>What is this?</summary>
+A small repository orientation CLI.
+</details>
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('What is this? A small repository orientation CLI.');
+  });
+
+  it('strips <figure>/<figcaption> so the caption text surfaces', () => {
+    fx.write(
+      'README.md',
+      `# Tool
+
+<figure><figcaption>Screenshot of the tool.</figcaption></figure>
+`,
+    );
+    const r = detectReadme(fx.path);
+    expect(r?.summary).toBe('Screenshot of the tool.');
+  });
+
   it('strips a centered HTML title and surfaces wrapped prose', () => {
     fx.write(
       'README.md',
