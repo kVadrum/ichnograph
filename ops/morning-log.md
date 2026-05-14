@@ -32,3 +32,4 @@ Formats:
 2026-05-11 shipped a76c81f — "notes/readme: strip GFM footnote references from summaries" → sessions/2026-05-11.md
 2026-05-12 shipped 7a22a8b — "notes/readme: strip leading blockquote markers from summaries" → sessions/2026-05-12.md
 2026-05-13 shipped 5120eaf — "notes/readme: decode HTML entities in summaries" → sessions/2026-05-13.md
+2026-05-14 shipped f9566b2 — "notes/readme: strip <details>/<summary>/<figure>/<figcaption>" → sessions/2026-05-14.md
