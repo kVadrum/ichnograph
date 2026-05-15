@@ -8,6 +8,15 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Added
+- Stack detector now reads `name` and `version` from `deno.json` (JSR
+  publishing surface). Previously these were hard-coded to `null` so a
+  Deno package's identity was invisible in the stack section. When both
+  `deno.json` and `deno.jsonc` are present, `deno.json` wins (matching
+  Deno's own resolution). The `manifest` field now reflects which file
+  was actually inspected — previously a project with only `deno.jsonc`
+  was reported as `manifest: 'deno.json'`. JSONC with C-style comments
+  still falls back to null name/version rather than pulling in a JSONC
+  parser for a degraded surface.
 - Stack detector now surfaces PHP frameworks from `composer.json`
   (`require` + `require-dev`): Laravel, Symfony, CakePHP, Yii,
   CodeIgniter, Slim, Laminas, Drupal, Statamic, Filament, Livewire,

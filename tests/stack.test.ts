@@ -100,4 +100,32 @@ dependencies = ["fastapi", "pydantic"]
     expect(stacks[0]?.language).toBe('Go');
     expect(stacks[0]?.name).toBe('github.com/example/thing');
   });
+
+  it('reads Deno name and version from deno.json', () => {
+    fx.write(
+      'deno.json',
+      JSON.stringify({ name: '@scope/widget', version: '0.5.1' }),
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Deno',
+      manifest: 'deno.json',
+      name: '@scope/widget',
+      version: '0.5.1',
+    });
+  });
+
+  it('falls back to nulls for deno.jsonc with comments', () => {
+    fx.write(
+      'deno.jsonc',
+      '// project config\n{ "name": "@scope/widget", "version": "0.5.1" }\n',
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Deno',
+      manifest: 'deno.jsonc',
+      name: null,
+      version: null,
+    });
+  });
 });

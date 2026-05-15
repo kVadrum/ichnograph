@@ -195,12 +195,20 @@ export function detectStack(root: string): StackHit[] {
     });
   }
 
-  if (existsSync(join(root, 'deno.json')) || existsSync(join(root, 'deno.jsonc'))) {
+  const denoJsonExists = existsSync(join(root, 'deno.json'));
+  const denoJsoncExists = existsSync(join(root, 'deno.jsonc'));
+  if (denoJsonExists || denoJsoncExists) {
+    // Prefer deno.json over deno.jsonc when both exist (Deno itself does too).
+    // readJsonSafe handles standard JSON; deno.jsonc with C-style comments
+    // returns null and we fall back to nulls for name/version rather than
+    // pulling in a JSONC parser for a degraded surface.
+    const manifest = denoJsonExists ? 'deno.json' : 'deno.jsonc';
+    const cfg = readJsonSafe(join(root, manifest));
     hits.push({
       language: 'Deno',
-      manifest: 'deno.json',
-      name: null,
-      version: null,
+      manifest,
+      name: stringOrNull(cfg?.name),
+      version: stringOrNull(cfg?.version),
       frameworks: [],
     });
   }
