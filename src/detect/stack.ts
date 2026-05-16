@@ -257,11 +257,16 @@ export function detectStack(root: string): StackHit[] {
 
   if (existsSync(join(root, 'pubspec.yaml'))) {
     const text = readTextSafe(join(root, 'pubspec.yaml')) ?? '';
+    // Top-level keys only (no leading whitespace) so nested `version:` under
+    // dependencies isn't misread as the package's own version. The value may
+    // be quoted ("1.0.0") or bare (1.0.0), and Flutter apps commonly append
+    // a build suffix (1.0.0+1) which is preserved verbatim.
+    const versionMatch = text.match(/^version:\s*['"]?([^'"\s#]+)['"]?/m);
     hits.push({
       language: 'Dart',
       manifest: 'pubspec.yaml',
       name: text.match(/^name:\s*(\S+)/m)?.[1] ?? null,
-      version: null,
+      version: versionMatch?.[1] ?? null,
       frameworks: /flutter:/m.test(text) ? ['Flutter'] : [],
     });
   }

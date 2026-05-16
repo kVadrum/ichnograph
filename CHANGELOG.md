@@ -8,6 +8,13 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Added
+- Stack detector now reads `version` from `pubspec.yaml` (Dart/Flutter).
+  Previously hard-coded to `null` so a Dart package's version was invisible
+  in the stack section. Top-level `^version:` only, so nested
+  `version:` entries under `dependencies:` aren't mistaken for the
+  package's own version. Quotes are stripped; Flutter's build-suffix form
+  (`1.0.0+42`) is preserved verbatim. Trailing `#` comments terminate the
+  value cleanly.
 - Stack detector now reads `name` and `version` from `deno.json` (JSR
   publishing surface). Previously these were hard-coded to `null` so a
   Deno package's identity was invisible in the stack section. When both

@@ -115,6 +115,59 @@ dependencies = ["fastapi", "pydantic"]
     });
   });
 
+  it('reads Dart pubspec name and version', () => {
+    fx.write(
+      'pubspec.yaml',
+      `name: my_pkg
+version: 1.2.3
+description: A test package.
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Dart',
+      manifest: 'pubspec.yaml',
+      name: 'my_pkg',
+      version: '1.2.3',
+    });
+  });
+
+  it('preserves Flutter build suffix in pubspec version', () => {
+    fx.write(
+      'pubspec.yaml',
+      `name: flutter_app
+version: 1.0.0+42
+environment:
+  sdk: ">=3.0.0 <4.0.0"
+dependencies:
+  flutter:
+    sdk: flutter
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.version).toBe('1.0.0+42');
+    expect(stacks[0]?.frameworks).toContain('Flutter');
+  });
+
+  it('ignores nested version keys under dependencies in pubspec', () => {
+    fx.write(
+      'pubspec.yaml',
+      `name: my_pkg
+dependencies:
+  some_dep:
+    version: 9.9.9
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.version).toBeNull();
+  });
+
+  it('strips quotes around pubspec version', () => {
+    fx.write('pubspec.yaml', `name: my_pkg\nversion: "2.0.0"\n`);
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.version).toBe('2.0.0');
+  });
+
   it('falls back to nulls for deno.jsonc with comments', () => {
     fx.write(
       'deno.jsonc',
