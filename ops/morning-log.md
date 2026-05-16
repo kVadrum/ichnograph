@@ -34,3 +34,4 @@ Formats:
 2026-05-13 shipped 5120eaf — "notes/readme: decode HTML entities in summaries" → sessions/2026-05-13.md
 2026-05-14 shipped f9566b2 — "notes/readme: strip <details>/<summary>/<figure>/<figcaption>" → sessions/2026-05-14.md
 2026-05-15 shipped 6f08072 — "stack: read name and version from deno.json" → sessions/2026-05-15.md
+2026-05-16 shipped 3d18f17 — "stack: read version from pubspec.yaml" → sessions/2026-05-16.md
