@@ -168,6 +168,40 @@ dependencies:
     expect(stacks[0]?.version).toBe('2.0.0');
   });
 
+  it('reads Gleam name and version from gleam.toml', () => {
+    fx.write(
+      'gleam.toml',
+      `name = "my_gleam_pkg"
+version = "0.3.1"
+description = "a test"
+
+[dependencies]
+gleam_stdlib = "~> 0.27"
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Gleam',
+      manifest: 'gleam.toml',
+      name: 'my_gleam_pkg',
+      version: '0.3.1',
+    });
+  });
+
+  it('ignores version under [dependencies.x] subtables in gleam.toml', () => {
+    fx.write(
+      'gleam.toml',
+      `name = "my_gleam_pkg"
+
+[dependencies.foo]
+version = "9.9.9"
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('my_gleam_pkg');
+    expect(stacks[0]?.version).toBeNull();
+  });
+
   it('falls back to nulls for deno.jsonc with comments', () => {
     fx.write(
       'deno.jsonc',

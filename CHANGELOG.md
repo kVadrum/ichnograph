@@ -8,6 +8,13 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Added
+- Stack detector now reads `version` from `gleam.toml`. Previously hard-coded
+  to `null` so a Gleam package's version was invisible in the stack section.
+  Lookup is scoped to the top-of-file region (before the first `[section]`
+  header) so a `version = "..."` line under a subtable like
+  `[dependencies.foo]` can't masquerade as the package's own version. Name
+  lookup is scoped the same way for consistency, though it was already
+  top-of-file by convention.
 - Stack detector now reads `version` from `pubspec.yaml` (Dart/Flutter).
   Previously hard-coded to `null` so a Dart package's version was invisible
   in the stack section. Top-level `^version:` only, so nested

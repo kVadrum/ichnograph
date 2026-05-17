@@ -215,11 +215,17 @@ export function detectStack(root: string): StackHit[] {
 
   if (existsSync(join(root, 'gleam.toml'))) {
     const text = readTextSafe(join(root, 'gleam.toml')) ?? '';
+    // Limit version lookup to the top-of-file region (before the first
+    // [section] header) so a `version = "..."` line under a subtable like
+    // [dependencies.foo] can't masquerade as the package's own version.
+    // Name was already top-of-file by convention, but apply the same scope
+    // for consistency.
+    const topLevel = text.split(/^\[/m)[0] ?? text;
     hits.push({
       language: 'Gleam',
       manifest: 'gleam.toml',
-      name: text.match(/^\s*name\s*=\s*"([^"]+)"/m)?.[1] ?? null,
-      version: null,
+      name: topLevel.match(/^\s*name\s*=\s*"([^"]+)"/m)?.[1] ?? null,
+      version: topLevel.match(/^\s*version\s*=\s*"([^"]+)"/m)?.[1] ?? null,
       frameworks: [],
     });
   }
