@@ -202,6 +202,92 @@ version = "9.9.9"
     expect(stacks[0]?.version).toBeNull();
   });
 
+  it('reads Elixir mix.exs app name and literal version', () => {
+    fx.write(
+      'mix.exs',
+      `defmodule MyApp.MixProject do
+  use Mix.Project
+
+  def project do
+    [
+      app: :my_app,
+      version: "0.4.2",
+      elixir: "~> 1.14",
+      deps: deps()
+    ]
+  end
+
+  defp deps, do: []
+end
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Elixir',
+      manifest: 'mix.exs',
+      name: 'my_app',
+      version: '0.4.2',
+    });
+  });
+
+  it('resolves @version module-attribute in mix.exs', () => {
+    fx.write(
+      'mix.exs',
+      `defmodule MyApp.MixProject do
+  use Mix.Project
+
+  @version "1.7.0"
+
+  def project do
+    [
+      app: :my_app,
+      version: @version,
+      deps: []
+    ]
+  end
+end
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.version).toBe('1.7.0');
+  });
+
+  it('returns null mix.exs version when project block is missing', () => {
+    fx.write('mix.exs', 'defmodule Foo do\nend\n');
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Elixir',
+      name: null,
+      version: null,
+    });
+  });
+
+  it('ignores app:/version: outside the project block in mix.exs', () => {
+    fx.write(
+      'mix.exs',
+      `defmodule MyApp.MixProject do
+  use Mix.Project
+
+  def project do
+    [
+      app: :real_app,
+      version: "1.0.0"
+    ]
+  end
+
+  defp deps do
+    [
+      {:other, app: :wrong, version: "9.9.9"}
+    ]
+  end
+end
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('real_app');
+    expect(stacks[0]?.version).toBe('1.0.0');
+  });
+
   it('falls back to nulls for deno.jsonc with comments', () => {
     fx.write(
       'deno.jsonc',

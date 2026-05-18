@@ -231,11 +231,32 @@ export function detectStack(root: string): StackHit[] {
   }
 
   if (existsSync(join(root, 'mix.exs'))) {
+    const text = readTextSafe(join(root, 'mix.exs')) ?? '';
+    // mix.exs is Elixir code; the project keyword list inside `def project do
+    // ... end` carries the metadata we want. Scope name/version lookups to
+    // that block so child-app specs (e.g. inside an umbrella's deps list)
+    // can't shadow the host project's values. The non-greedy `end` match
+    // assumes the body has no nested do/end — typical for a project
+    // function that returns a literal keyword list.
+    const projectBlock = text.match(/def\s+project\s*(?:\(\s*\))?\s*do\b([\s\S]*?)\n\s*end\b/);
+    const scope = projectBlock?.[1] ?? '';
+    const appMatch = scope.match(/\bapp:\s*:([A-Za-z_][A-Za-z0-9_]*[?!]?)/);
+    const versionLiteral = scope.match(/\bversion:\s*"([^"]+)"/)?.[1];
+    // `version: @ver` referencing a module attribute is the canonical pattern
+    // for Hex packages — resolve it from the module-level `@ver "..."` line.
+    let version: string | null = versionLiteral ?? null;
+    if (version === null) {
+      const attrRef = scope.match(/\bversion:\s*@([A-Za-z_][A-Za-z0-9_]*)/)?.[1];
+      if (attrRef) {
+        const attrRe = new RegExp(`@${attrRef}\\s+"([^"]+)"`);
+        version = text.match(attrRe)?.[1] ?? null;
+      }
+    }
     hits.push({
       language: 'Elixir',
       manifest: 'mix.exs',
-      name: null,
-      version: null,
+      name: appMatch?.[1] ?? null,
+      version,
       frameworks: [],
     });
   }

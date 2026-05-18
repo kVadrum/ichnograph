@@ -8,6 +8,16 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Added
+- Stack detector now reads `app` (as name) and `version` from `mix.exs`
+  (Elixir). Previously both were hard-coded to `null` so an Elixir
+  package's identity was invisible in the stack section. Lookup is
+  scoped to the `def project do ... end` block so child-app specs
+  appearing later in the file (inside an umbrella's deps list, for
+  example) can't shadow the host project's values. A `version: @ver`
+  reference resolves through to the module-level `@ver "..."`
+  attribute — the canonical pattern for published Hex packages — so
+  libraries that follow that idiom now surface their actual version
+  instead of nothing.
 - Stack detector now reads `version` from `gleam.toml`. Previously hard-coded
   to `null` so a Gleam package's version was invisible in the stack section.
   Lookup is scoped to the top-of-file region (before the first `[section]`
