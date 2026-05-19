@@ -8,6 +8,16 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Added
+- Stack detector now reads `name` and `version` from a root-level `*.gemspec`
+  (Ruby). Previously both were hard-coded to `null` so a Ruby gem's identity
+  was invisible in the stack section. When a `.gemspec` is present it
+  becomes the reported `manifest` (preferred over `Gemfile` since the
+  gemspec carries the gem's own metadata, not just dependency declarations).
+  A `spec.version = MyGem::VERSION` reference — the canonical
+  Bundler-scaffolded pattern — resolves through to the literal in
+  `lib/<gem>/version.rb` so published gems surface their actual version
+  instead of nothing. A `*.gemspec` alone is now sufficient to detect
+  Ruby; previously detection required a `Gemfile`.
 - Stack detector now reads `app` (as name) and `version` from `mix.exs`
   (Elixir). Previously both were hard-coded to `null` so an Elixir
   package's identity was invisible in the stack section. Lookup is

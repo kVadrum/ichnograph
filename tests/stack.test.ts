@@ -288,6 +288,70 @@ end
     expect(stacks[0]?.version).toBe('1.0.0');
   });
 
+  it('reads Ruby gem name and literal version from .gemspec', () => {
+    fx.write(
+      'my_gem.gemspec',
+      `Gem::Specification.new do |spec|
+  spec.name    = "my_gem"
+  spec.version = "0.3.1"
+  spec.authors = ["kV"]
+end
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Ruby',
+      manifest: 'my_gem.gemspec',
+      name: 'my_gem',
+      version: '0.3.1',
+    });
+  });
+
+  it('resolves VERSION constant reference in .gemspec via lib/<name>/version.rb', () => {
+    fx.write(
+      'my_gem.gemspec',
+      `Gem::Specification.new do |spec|
+  spec.name    = "my_gem"
+  spec.version = MyGem::VERSION
+end
+`,
+    );
+    fx.write(
+      'lib/my_gem/version.rb',
+      `module MyGem
+  VERSION = "1.7.0"
+end
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.version).toBe('1.7.0');
+  });
+
+  it('detects Ruby from .gemspec alone (no Gemfile)', () => {
+    fx.write(
+      'lonely.gemspec',
+      `Gem::Specification.new do |s|
+  s.name    = "lonely"
+  s.version = "0.0.1"
+end
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.language).toBe('Ruby');
+    expect(stacks[0]?.manifest).toBe('lonely.gemspec');
+  });
+
+  it('keeps Gemfile manifest when no .gemspec is present', () => {
+    fx.write('Gemfile', `source "https://rubygems.org"\ngem "rake"\n`);
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Ruby',
+      manifest: 'Gemfile',
+      name: null,
+      version: null,
+    });
+  });
+
   it('falls back to nulls for deno.jsonc with comments', () => {
     fx.write(
       'deno.jsonc',

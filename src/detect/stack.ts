@@ -1,4 +1,4 @@
-import { existsSync, readFileSync } from 'node:fs';
+import { existsSync, readdirSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 
 export type StackHit = {
@@ -125,6 +125,41 @@ function extractTomlField(text: string, section: string, field: string): string 
 
 function stringOrNull(value: unknown): string | null {
   return typeof value === 'string' ? value : null;
+}
+
+function findGemspec(root: string): string | null {
+  try {
+    for (const entry of readdirSync(root)) {
+      if (entry.endsWith('.gemspec')) return entry;
+    }
+  } catch {
+    // unreadable root — caller falls back to other detectors
+  }
+  return null;
+}
+
+function findRubyVersionConstant(root: string): string | null {
+  const libDir = join(root, 'lib');
+  if (!existsSync(libDir)) return null;
+  const candidates: string[] = [join(libDir, 'version.rb')];
+  try {
+    for (const entry of readdirSync(libDir, { withFileTypes: true })) {
+      if (entry.isDirectory()) {
+        candidates.push(join(libDir, entry.name, 'version.rb'));
+      }
+    }
+  } catch {
+    // unreadable lib/ — fall through with whatever candidates we have
+  }
+  for (const path of candidates) {
+    const text = readTextSafe(path);
+    if (!text) continue;
+    // Anchor at line start so a commented-out `# VERSION = "old"` is skipped
+    // and FROZEN_STRING_LITERAL pragmas higher in the file don't interfere.
+    const match = text.match(/^\s*VERSION\s*=\s*["']([^"']+)["']/m);
+    if (match?.[1]) return match[1];
+  }
+  return null;
 }
 
 export function detectStack(root: string): StackHit[] {
@@ -261,12 +296,31 @@ export function detectStack(root: string): StackHit[] {
     });
   }
 
-  if (existsSync(join(root, 'Gemfile'))) {
+  const gemspecName = findGemspec(root);
+  if (gemspecName || existsSync(join(root, 'Gemfile'))) {
+    // Prefer .gemspec when present — it carries the gem's own name and version,
+    // while Gemfile only lists dependencies. The gemspec is also the artifact
+    // RubyGems publishes from, so its values are the canonical identity.
+    let name: string | null = null;
+    let version: string | null = null;
+    if (gemspecName) {
+      const text = readTextSafe(join(root, gemspecName)) ?? '';
+      name = text.match(/^\s*\w+\.name\s*=\s*["']([^"']+)["']/m)?.[1] ?? null;
+      version = text.match(/^\s*\w+\.version\s*=\s*["']([^"']+)["']/m)?.[1] ?? null;
+      if (version === null) {
+        // Canonical Bundler-scaffolded gemspecs reference a VERSION constant
+        // (`spec.version = MyGem::VERSION`) defined in lib/<gem>/version.rb.
+        // Resolve through to the literal so published gems surface their
+        // real version instead of nothing.
+        const constRef = text.match(/^\s*\w+\.version\s*=\s*[A-Z]\w*(?:::\w+)*\s*$/m);
+        if (constRef) version = findRubyVersionConstant(root);
+      }
+    }
     hits.push({
       language: 'Ruby',
-      manifest: 'Gemfile',
-      name: null,
-      version: null,
+      manifest: gemspecName ?? 'Gemfile',
+      name,
+      version,
       frameworks: [],
     });
   }
