@@ -2,14 +2,6 @@
 # Wrapper invoked by the systemd user timer. Fires an Opus 4.7 headless
 # Claude Code session against ichnograph using the prompt at
 # $PROJECT/ops/prompt.md. All output appended to ${LOG_DIR:-$HOME/logs}.
-#
-# Move-from-claude-expo note (2026-05-19): this file used to live at
-# claude-expo/ops/run-ichnograph-daily.sh as a cross-project leftover
-# from before ichnograph had its own repo with its own ops/. The user
-# systemd unit `ichnograph-daily.service` needs ExecStart updated to
-# point at the new path:
-#   ExecStart=%h/dev/projects/ichnograph/ops/run-tonight.sh
-# After updating: `systemctl --user daemon-reload`.
 
 set -uo pipefail
 
