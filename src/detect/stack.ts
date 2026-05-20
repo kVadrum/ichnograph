@@ -325,6 +325,28 @@ export function detectStack(root: string): StackHit[] {
     });
   }
 
+  // JuliaProject.toml takes precedence over Project.toml when both exist
+  // (Julia loads it first; the prefix exists to avoid conflicts with other
+  // ecosystems that also use a bare `Project.toml`).
+  const juliaProjectExists = existsSync(join(root, 'JuliaProject.toml'));
+  const projectTomlExists = existsSync(join(root, 'Project.toml'));
+  if (juliaProjectExists || projectTomlExists) {
+    const manifest = juliaProjectExists ? 'JuliaProject.toml' : 'Project.toml';
+    const text = readTextSafe(join(root, manifest)) ?? '';
+    // Limit lookup to the top-of-file region (before the first [section]
+    // header) so a `version = "..."` under [compat] or [deps] can't be
+    // misread as the package's own version. Name is top-of-file by
+    // convention; apply the same scope for consistency.
+    const topLevel = text.split(/^\[/m)[0] ?? text;
+    hits.push({
+      language: 'Julia',
+      manifest,
+      name: topLevel.match(/^\s*name\s*=\s*"([^"]+)"/m)?.[1] ?? null,
+      version: topLevel.match(/^\s*version\s*=\s*"([^"]+)"/m)?.[1] ?? null,
+      frameworks: [],
+    });
+  }
+
   if (existsSync(join(root, 'composer.json'))) {
     const pkg = readJsonSafe(join(root, 'composer.json'));
     hits.push({

@@ -8,6 +8,14 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Added
+- Stack detector now reads `name` and `version` from `Project.toml` /
+  `JuliaProject.toml` (Julia). Brings Julia into the detected-language
+  matrix. Lookup is scoped to the top-of-file region (before the first
+  `[section]` header) so a `version = "..."` line under `[compat]` or
+  `[deps]` can't masquerade as the package's own version, mirroring the
+  `gleam.toml` scoping. When both files exist, `JuliaProject.toml` wins
+  (matching Julia's own load order — the prefix exists precisely to
+  override a generic `Project.toml`).
 - Stack detector now reads `name` and `version` from a root-level `*.gemspec`
   (Ruby). Previously both were hard-coded to `null` so a Ruby gem's identity
   was invisible in the stack section. When a `.gemspec` is present it

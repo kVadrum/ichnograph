@@ -352,6 +352,52 @@ end
     });
   });
 
+  it('reads Julia Project.toml name and version', () => {
+    fx.write(
+      'Project.toml',
+      `name = "MyPkg"
+uuid = "12345678-1234-1234-1234-123456789012"
+version = "0.4.2"
+
+[deps]
+SomeDep = "abcdef00-0000-0000-0000-000000000000"
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Julia',
+      manifest: 'Project.toml',
+      name: 'MyPkg',
+      version: '0.4.2',
+    });
+  });
+
+  it('ignores version under [compat] in Julia Project.toml', () => {
+    fx.write(
+      'Project.toml',
+      `name = "MyPkg"
+
+[compat]
+julia = "1.9"
+version = "9.9.9"
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('MyPkg');
+    expect(stacks[0]?.version).toBeNull();
+  });
+
+  it('prefers JuliaProject.toml over Project.toml when both present', () => {
+    fx.write('Project.toml', `name = "Generic"\nversion = "0.0.1"\n`);
+    fx.write('JuliaProject.toml', `name = "RealJulia"\nversion = "2.0.0"\n`);
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      manifest: 'JuliaProject.toml',
+      name: 'RealJulia',
+      version: '2.0.0',
+    });
+  });
+
   it('falls back to nulls for deno.jsonc with comments', () => {
     fx.write(
       'deno.jsonc',
