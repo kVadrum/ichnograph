@@ -39,3 +39,4 @@ Formats:
 2026-05-18 shipped 1ba3f08 — "stack: read app name and version from mix.exs" → sessions/2026-05-18.md
 2026-05-19 shipped a8eacda — "stack: read name and version from Ruby .gemspec" → sessions/2026-05-19.md
 2026-05-20 shipped 1ab1d8b — "stack: read name and version from Julia Project.toml" → sessions/2026-05-20.md
+2026-05-21 shipped 8984402 — "stack: strip quotes and trailing comments from Dart pubspec name" → sessions/2026-05-21.md
