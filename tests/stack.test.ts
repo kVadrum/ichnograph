@@ -168,6 +168,18 @@ dependencies:
     expect(stacks[0]?.version).toBe('2.0.0');
   });
 
+  it('strips quotes around pubspec name', () => {
+    fx.write('pubspec.yaml', `name: "my_pkg"\nversion: 1.0.0\n`);
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('my_pkg');
+  });
+
+  it('terminates pubspec name at a trailing # comment', () => {
+    fx.write('pubspec.yaml', `name: my_pkg # the package\nversion: 1.0.0\n`);
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('my_pkg');
+  });
+
   it('reads Gleam name and version from gleam.toml', () => {
     fx.write(
       'gleam.toml',

@@ -365,10 +365,14 @@ export function detectStack(root: string): StackHit[] {
     // be quoted ("1.0.0") or bare (1.0.0), and Flutter apps commonly append
     // a build suffix (1.0.0+1) which is preserved verbatim.
     const versionMatch = text.match(/^version:\s*['"]?([^'"\s#]+)['"]?/m);
+    // Name supports the same optional-quote form as version so a quoted
+    // `name: "my_pkg"` doesn't surface with literal quotes; trailing `#`
+    // comments are terminated cleanly the same way.
+    const nameMatch = text.match(/^name:\s*['"]?([^'"\s#]+)['"]?/m);
     hits.push({
       language: 'Dart',
       manifest: 'pubspec.yaml',
-      name: text.match(/^name:\s*(\S+)/m)?.[1] ?? null,
+      name: nameMatch?.[1] ?? null,
       version: versionMatch?.[1] ?? null,
       frameworks: /flutter:/m.test(text) ? ['Flutter'] : [],
     });

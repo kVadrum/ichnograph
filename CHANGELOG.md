@@ -7,6 +7,14 @@ As of v0.2.0, the text and `--json` output are considered stable —
 they will not break without a major-version bump.
 
 ## [Unreleased]
+### Fixed
+- Stack detector's Dart `name` lookup in `pubspec.yaml` now mirrors the
+  `version` lookup: optional surrounding quotes are stripped and trailing
+  `#` comments terminate the value cleanly. Previously a quoted
+  `name: "my_pkg"` surfaced with literal quotes, and a bare
+  `name: my_pkg # the package` happened to work only because YAML
+  identifiers don't contain whitespace.
+
 ### Added
 - Stack detector now reads `name` and `version` from `Project.toml` /
   `JuliaProject.toml` (Julia). Brings Julia into the detected-language
