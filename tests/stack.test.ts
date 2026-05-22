@@ -410,6 +410,51 @@ version = "9.9.9"
     });
   });
 
+  it('reads Haskell name and version from *.cabal', () => {
+    fx.write(
+      'my-app.cabal',
+      `cabal-version:      2.0
+name:               my-app
+version:            0.1.0.0
+synopsis:           A small thing
+license:            BSD-3-Clause
+
+library
+  exposed-modules:  My.App
+  build-depends:    base >= 4 && < 5
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Haskell',
+      manifest: 'my-app.cabal',
+      name: 'my-app',
+      version: '0.1.0.0',
+    });
+  });
+
+  it('ignores indented version: inside a cabal stanza', () => {
+    fx.write(
+      'my-app.cabal',
+      `name:               my-app
+
+library
+  version:          9.9.9
+  build-depends:    base
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('my-app');
+    expect(stacks[0]?.version).toBeNull();
+  });
+
+  it('handles case-insensitive cabal field names', () => {
+    fx.write('my-app.cabal', `Name: my-app\nVersion: 1.2.3\n`);
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('my-app');
+    expect(stacks[0]?.version).toBe('1.2.3');
+  });
+
   it('falls back to nulls for deno.jsonc with comments', () => {
     fx.write(
       'deno.jsonc',

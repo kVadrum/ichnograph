@@ -138,6 +138,17 @@ function findGemspec(root: string): string | null {
   return null;
 }
 
+function findCabalFile(root: string): string | null {
+  try {
+    // Cabal expects exactly one *.cabal at the package root; if there are
+    // somehow several, alphabetical is a deterministic tie-break.
+    const cabals = readdirSync(root).filter((e) => e.endsWith('.cabal')).sort();
+    return cabals[0] ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function findRubyVersionConstant(root: string): string | null {
   const libDir = join(root, 'lib');
   if (!existsSync(libDir)) return null;
@@ -355,6 +366,24 @@ export function detectStack(root: string): StackHit[] {
       name: stringOrNull(pkg?.name),
       version: stringOrNull(pkg?.version),
       frameworks: pkg ? detectPhpFrameworks(pkg) : [],
+    });
+  }
+
+  const cabalName = findCabalFile(root);
+  if (cabalName) {
+    const text = readTextSafe(join(root, cabalName)) ?? '';
+    // Cabal fields are case-insensitive and line-oriented at column 0. Values
+    // run to the end of the line; for name/version they're a bare token so a
+    // simple `\S+` capture is sufficient. Continuation lines (indented) are
+    // unused for these scalar fields in practice.
+    const nameMatch = text.match(/^name\s*:\s*(\S+)/im);
+    const versionMatch = text.match(/^version\s*:\s*(\S+)/im);
+    hits.push({
+      language: 'Haskell',
+      manifest: cabalName,
+      name: nameMatch?.[1] ?? null,
+      version: versionMatch?.[1] ?? null,
+      frameworks: [],
     });
   }
 

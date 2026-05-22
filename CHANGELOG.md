@@ -7,6 +7,16 @@ As of v0.2.0, the text and `--json` output are considered stable —
 they will not break without a major-version bump.
 
 ## [Unreleased]
+### Added
+- Stack detector now reads `name` and `version` from a root-level `*.cabal`
+  file (Haskell). Previously Haskell projects were invisible to detection.
+  Field lookup is anchored at column 0 so an indented `version:` inside a
+  `library`/`executable` stanza can't masquerade as the package's own
+  version (cabal stanza fields are indented by convention). Field names
+  are matched case-insensitively per the Cabal spec. If a root contains
+  multiple `*.cabal` files (rare; cabal expects exactly one), the
+  alphabetically first wins as a deterministic tie-break.
+
 ### Fixed
 - Stack detector's Dart `name` lookup in `pubspec.yaml` now mirrors the
   `version` lookup: optional surrounding quotes are stripped and trailing
