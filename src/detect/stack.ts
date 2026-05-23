@@ -387,6 +387,25 @@ export function detectStack(root: string): StackHit[] {
     });
   }
 
+  if (existsSync(join(root, 'shard.yml'))) {
+    const text = readTextSafe(join(root, 'shard.yml')) ?? '';
+    // shard.yml is YAML; the canonical fields are top-level `name:` and
+    // `version:`. Anchor both at column 0 so a nested `version:` under
+    // `dependencies:` (Crystal's git/path/version source spec form) can't
+    // masquerade as the shard's own version. Quotes are stripped and a
+    // trailing `#` comment terminates the value cleanly — same shape as the
+    // pubspec.yaml lookup.
+    const nameMatch = text.match(/^name:\s*['"]?([^'"\s#]+)['"]?/m);
+    const versionMatch = text.match(/^version:\s*['"]?([^'"\s#]+)['"]?/m);
+    hits.push({
+      language: 'Crystal',
+      manifest: 'shard.yml',
+      name: nameMatch?.[1] ?? null,
+      version: versionMatch?.[1] ?? null,
+      frameworks: [],
+    });
+  }
+
   if (existsSync(join(root, 'pubspec.yaml'))) {
     const text = readTextSafe(join(root, 'pubspec.yaml')) ?? '';
     // Top-level keys only (no leading whitespace) so nested `version:` under

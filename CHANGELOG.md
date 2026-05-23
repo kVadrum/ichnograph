@@ -8,6 +8,12 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Added
+- Stack detector now reads `name` and `version` from `shard.yml` (Crystal).
+  Brings Crystal into the detected-language matrix. Top-level `^name:` /
+  `^version:` only, so a nested `version:` under a `dependencies:` source
+  spec (Crystal's `github: …\nversion: ~> x.y` form) can't masquerade as the
+  shard's own version. Quotes are stripped and trailing `#` comments
+  terminate the value cleanly — same shape as the `pubspec.yaml` lookup.
 - Stack detector now reads `name` and `version` from a root-level `*.cabal`
   file (Haskell). Previously Haskell projects were invisible to detection.
   Field lookup is anchored at column 0 so an indented `version:` inside a

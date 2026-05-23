@@ -455,6 +455,47 @@ library
     expect(stacks[0]?.version).toBe('1.2.3');
   });
 
+  it('reads Crystal shard.yml name and version', () => {
+    fx.write(
+      'shard.yml',
+      `name: my_shard
+version: 0.3.1
+authors:
+  - kV <kv@example.com>
+license: MIT
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Crystal',
+      manifest: 'shard.yml',
+      name: 'my_shard',
+      version: '0.3.1',
+    });
+  });
+
+  it('ignores nested version under dependencies in shard.yml', () => {
+    fx.write(
+      'shard.yml',
+      `name: my_shard
+dependencies:
+  other:
+    github: foo/other
+    version: ~> 9.9.0
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('my_shard');
+    expect(stacks[0]?.version).toBeNull();
+  });
+
+  it('strips quotes and trailing # comment in shard.yml', () => {
+    fx.write('shard.yml', `name: "my_shard" # the shard\nversion: '1.0.0'\n`);
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('my_shard');
+    expect(stacks[0]?.version).toBe('1.0.0');
+  });
+
   it('falls back to nulls for deno.jsonc with comments', () => {
     fx.write(
       'deno.jsonc',
