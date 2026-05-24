@@ -42,3 +42,4 @@ Formats:
 2026-05-21 shipped 8984402 — "stack: strip quotes and trailing comments from Dart pubspec name" → sessions/2026-05-21.md
 2026-05-22 shipped 5a48374 — "stack: read name and version from Haskell *.cabal files" → sessions/2026-05-22.md
 2026-05-23 shipped 36f5f98 — "stack: read name and version from Crystal shard.yml" → sessions/2026-05-23.md
+2026-05-24 shipped 9452f78 — "stack: read name and version from Zig build.zig.zon" → sessions/2026-05-24.md
