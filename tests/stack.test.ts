@@ -496,6 +496,56 @@ dependencies:
     expect(stacks[0]?.version).toBe('1.0.0');
   });
 
+  it('reads Zig build.zig.zon name (enum literal) and version', () => {
+    fx.write(
+      'build.zig.zon',
+      `.{
+    .name = .my_pkg,
+    .version = "0.3.1",
+    .minimum_zig_version = "0.14.0",
+    .fingerprint = 0xabcdef,
+    .dependencies = .{},
+    .paths = .{""},
+}
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]).toMatchObject({
+      language: 'Zig',
+      manifest: 'build.zig.zon',
+      name: 'my_pkg',
+      version: '0.3.1',
+    });
+  });
+
+  it('reads Zig build.zig.zon name as quoted string (pre-0.14)', () => {
+    fx.write(
+      'build.zig.zon',
+      `.{
+    .name = "legacy_pkg",
+    .version = "1.0.0",
+}
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('legacy_pkg');
+    expect(stacks[0]?.version).toBe('1.0.0');
+  });
+
+  it('does not mistake minimum_zig_version for the package version', () => {
+    fx.write(
+      'build.zig.zon',
+      `.{
+    .name = .my_pkg,
+    .minimum_zig_version = "0.14.0",
+}
+`,
+    );
+    const stacks = detectStack(fx.path);
+    expect(stacks[0]?.name).toBe('my_pkg');
+    expect(stacks[0]?.version).toBeNull();
+  });
+
   it('falls back to nulls for deno.jsonc with comments', () => {
     fx.write(
       'deno.jsonc',

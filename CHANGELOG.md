@@ -8,6 +8,12 @@ they will not break without a major-version bump.
 
 ## [Unreleased]
 ### Added
+- Stack detector now reads `name` and `version` from `build.zig.zon` (Zig).
+  Brings Zig into the detected-language matrix. Accepts both the modern
+  enum-literal form (`.name = .my_pkg`, Zig 0.14+) and the older quoted
+  string form (`.name = "my_pkg"`). The `.version` lookup doesn't collide
+  with `.minimum_zig_version` because the dotted form of the latter is
+  `.minimum_zig_version`, not `.version` — no substring match risk.
 - Stack detector now reads `name` and `version` from `shard.yml` (Crystal).
   Brings Crystal into the detected-language matrix. Top-level `^name:` /
   `^version:` only, so a nested `version:` under a `dependencies:` source

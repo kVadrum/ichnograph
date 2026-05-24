@@ -406,6 +406,26 @@ export function detectStack(root: string): StackHit[] {
     });
   }
 
+  if (existsSync(join(root, 'build.zig.zon'))) {
+    const text = readTextSafe(join(root, 'build.zig.zon')) ?? '';
+    // ZON (Zig Object Notation). Zig 0.14+ writes name as an enum literal
+    // (`.name = .my_pkg`); earlier releases used a quoted string
+    // (`.name = "my_pkg"`). Accept both. Version is always a quoted string.
+    // The `.minimum_zig_version` field doesn't collide with `.version`
+    // because its leading-dot form is `.minimum_zig_version`, not
+    // `.version` — no substring match risk.
+    const nameLiteral = text.match(/\.name\s*=\s*\.([A-Za-z_][A-Za-z0-9_]*)/)?.[1];
+    const nameString = text.match(/\.name\s*=\s*"([^"]+)"/)?.[1];
+    const versionMatch = text.match(/\.version\s*=\s*"([^"]+)"/);
+    hits.push({
+      language: 'Zig',
+      manifest: 'build.zig.zon',
+      name: nameLiteral ?? nameString ?? null,
+      version: versionMatch?.[1] ?? null,
+      frameworks: [],
+    });
+  }
+
   if (existsSync(join(root, 'pubspec.yaml'))) {
     const text = readTextSafe(join(root, 'pubspec.yaml')) ?? '';
     // Top-level keys only (no leading whitespace) so nested `version:` under
