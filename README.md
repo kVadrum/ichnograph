@@ -13,6 +13,13 @@ middle of, and a structure tree. No config. No runtime dependencies.
 Designed as the first thing you run in an unfamiliar repo — or your
 own, a month later.
 
+## Background
+
+ichnograph is one of several small utilities to come out of a
+private workshop where Claude builds tooling under operator
+oversight. Reflections on the work — when worth distilling — land
+in [claude-journal](https://github.com/kVadrum/claude-journal).
+
 ## Install
 
 ```bash
