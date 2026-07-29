@@ -18,9 +18,40 @@ jobs:
       - uses: actions/checkout@v6
       - uses: actions/setup-node@v6
         with:
-          node-version: 20
+          # Node 20 went EOL 2026-04-30 and npm dropped it: npm@12's engines are
+          # `^22.22.2 || ^24.15.0 || >=26.0.0`, so `npm install -g` below exits
+          # EBADENGINE and fails the job before publish. 24 is active LTS and
+          # ships npm 11.16, already over the OIDC floor. Unrelated to this
+          # package's own `engines.node: >=20` — that is the consumer floor.
+          node-version: 24
           registry-url: 'https://registry.npmjs.org'
           cache: npm
-      - run: npm install -g npm@latest  # OIDC trusted publishing needs npm >= 11.5.1
-      - run: npm ci
+      # The tag is typed by hand and nothing else compares it to the version
+      # actually published. `git tag v0.4.8` on a tree still at 0.4.7 publishes
+      # 0.4.7 and attests it under a tag naming a different release — corrupting
+      # precisely the metadata claim `--provenance` exists to make trustworthy.
+      # Fails before any install work.
+      - name: Verify tag matches package.json version
+        run: |
+          tag="${GITHUB_REF_NAME#v}"
+          pkg="$(node -p "require('./package.json').version")"
+          [ "$tag" = "$pkg" ] || {
+            echo "::error::tag v$tag does not match package.json $pkg"
+            exit 1
+          }
+      # Floor-pinned, NOT @latest: the requirement is a minimum (OIDC trusted
+      # publishing needs npm >= 11.5.1); `@latest` resolves to the next npm major,
+      # free to drop this runner's Node line — exactly how this broke on Node 20.
+      # This shape led the global reference_npm_oidc_publish_pattern rather than
+      # diverging from it: the memory carried the broken node-20 + @latest form
+      # until 2026-07-28 and was corrected to match this file. They now agree —
+      # the thing not to revert to is `@latest`, not "the global pattern".
+      - run: npm install -g npm@^11
+      # `id-token: write` is live for the whole job, so a compromised transitive
+      # install script could reach the OIDC endpoint and mint a real publish
+      # credential. Verified 2026-07-28: the tree declares zero install scripts
+      # and `prepublishOnly` only runs `tsc`, which needs none — so this is free
+      # today and a guard against a future dep that isn't.
+      # NOT on `npm publish` below: that must keep running `prepublishOnly`.
+      - run: npm ci --ignore-scripts
       - run: npm publish --provenance --access public
