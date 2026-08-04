@@ -40,7 +40,7 @@ jobs:
         # this matrix is a site that restates it and must be revisited.
         node: [22, 24]
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
       - uses: actions/setup-node@v6
         with:
           node-version: ${{ matrix.node }}
