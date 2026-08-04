@@ -1,0 +1,53 @@
+name: CI
+
+# Why this exists: `release.yml` was the only workflow, so a Dependabot PR
+# reached the merge button having never been built or tested. Five of them
+# accumulated over five weeks for exactly that reason — each one needed a
+# hand-run of `npm ci && build && test` before it could be trusted, which is
+# expensive enough that they queued instead.
+#
+# `pull_request` is the load-bearing trigger, not `push`: gating dev after the
+# merge tells you the same thing one commit too late.
+on:
+  push:
+    branches: [dev, main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        # `engines.node` is `>=20`, and this tests a SUBSET of it — two points,
+        # not the floor. Node 20 is deliberately absent: it went EOL 2026-04-30
+        # and npm@12's own engines are `^22.22.2 || ^24.15.0 || >=26.0.0`, so
+        # `npm ci` exits EBADENGINE there and the job would fail on the
+        # toolchain rather than on this package. That is the same reasoning
+        # release.yml documents for pinning 24.
+        #
+        # The gap is real and worth naming rather than implying coverage: a
+        # consumer on Node 20 is inside the declared range and untested here.
+        # The package ships only `dist/` with zero runtime deps, so what Node 20
+        # has to do is run compiled JS — but if `engines.node` is ever NARROWED,
+        # this matrix is a site that restates it and must be revisited.
+        node: [22, 24]
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-node@v6
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - name: Install
+        run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Test
+        run: npm test
