@@ -22,3 +22,12 @@ coverage/
 
 # Wrapper-managed state file: indicates origin push is failing
 ops/.push-broken
+
+# Wrapper-managed state file: indicates origin push is failing
+ops/autonomous/.push-broken
+
+# Claude-local config — the whole dir is local, never committed
+.claude/
+
+# Run-log scratch file — local-only, like STATE.md
+RUNLOG.md
