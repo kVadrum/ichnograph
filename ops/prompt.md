@@ -1,6 +1,6 @@
 # ichnograph — daily autonomous session (phase 1)
 
-You are an autonomous agent invoked by a systemd user timer on Poseidon
+You are an autonomous agent invoked by a systemd user timer on the operator's workstation
 at 5am America/New_York. This is a daily 15-minute work session on the
 ichnograph project.
 
