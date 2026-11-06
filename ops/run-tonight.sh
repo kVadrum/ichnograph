@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Wrapper invoked by the systemd user timer. Fires an Opus 4.7 headless
-# Claude Code session against ichnograph using the prompt at
-# $PROJECT/ops/prompt.md. All output appended to ${LOG_DIR:-$HOME/logs}.
+# Wrapper invoked by the systemd user timer. Fires one headless Claude Code
+# session against ichnograph using the prompt at $PROJECT/ops/prompt.md, on
+# the fleet's rig model and effort (ops/tools/rig-model.sh). All output
+# appended to ${LOG_DIR:-$HOME/logs}.
 
 set -uo pipefail
 
@@ -33,10 +34,18 @@ fi
 
 ts() { date '+%Y-%m-%d %H:%M:%S %Z'; }
 
+# Canonical model + effort for all rigs (RIG_MODEL / RIG_EFFORT; override by
+# exporting either first). Sourced through $HOME like push-probe.sh below, so
+# this public repo names no host path. If it cannot be read, RIG_MODEL is unset
+# and `set -u` stops the run at the launch below, red, rather than on a
+# pinned model that goes stale (it read claude-opus-4-7 at high until
+# 2026-11-06).
+. "$HOME/dev/ops/tools/rig-model.sh"
+
 {
   echo "===== $(ts) START ichnograph-daily ====="
   echo "cwd: $PROJECT"
-  echo "model: claude-opus-4-7  effort: high"
+  echo "model: ${RIG_MODEL:-UNSET}  effort: ${RIG_EFFORT:-UNSET}"
   echo "node: $(command -v node || echo MISSING)  npm: $(command -v npm || echo MISSING)"
 } >>"$LOG"
 
@@ -53,8 +62,8 @@ update_push_state || true
 
 "$CLAUDE" \
   --print \
-  --model claude-opus-4-7 \
-  --effort high \
+  --model "$RIG_MODEL" \
+  --effort "$RIG_EFFORT" \
   --permission-mode acceptEdits \
   --output-format text \
   "$(cat "$PROMPT")" \
